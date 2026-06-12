@@ -1,0 +1,419 @@
+<mxfile host="app.diagrams.net" modified="2024-01-15T10:00:00.000Z" agent="Kiro" version="21.0.0" type="device">
+  <diagram name="Class Diagram - Subscription System" id="class-diagram-subscription">
+    <mxGraphModel dx="2800" dy="2200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3300" pageHeight="2800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ============================================ -->
+        <!-- TITLE -->
+        <!-- ============================================ -->
+        <mxCell id="title" value="&lt;b&gt;Class Diagram — Subscription Management System (Hexagonal Architecture)&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="800" y="20" width="700" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- DOMAIN LAYER PACKAGE (Orange #FFE0B2) -->
+        <!-- ============================================ -->
+        <mxCell id="domain_layer" value="Domain_Layer" style="shape=mxgraph.uml25.package;html=1;align=left;spacingLeft=10;verticalAlign=top;spacingTop=-2;fontSize=14;fontStyle=1;tabWidth=110;tabHeight=25;fillColor=#FFE0B2;strokeColor=#E65100;rounded=0;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="1400" height="880" as="geometry" />
+        </mxCell>
+
+        <!-- Domain: Entities -->
+        <mxCell id="user_entity" value="&lt;b&gt;User&lt;/b&gt;&#xa;─────────────────&#xa;- id: UserId&#xa;- name: String&#xa;- email: String&#xa;- active: Boolean&#xa;- createdAt: Instant&#xa;- updatedAt: Instant&#xa;─────────────────&#xa;+ activate(): void&#xa;+ deactivate(): void" style="shape=mxgraph.uml25.classNode;html=1;align=left;spacingLeft=8;verticalAlign=top;fillColor=#FFE0B2;strokeColor=#E65100;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="80" y="160" width="200" height="180" as="geometry" />
+        </mxCell>
+
+        <mxCell id="subscription_entity" value="&lt;b&gt;Subscription&lt;/b&gt;&#xa;─────────────────&#xa;- id: SubscriptionId&#xa;- userId: UserId&#xa;- plan: Plan&#xa;- status: SubscriptionStatus&#xa;- startDate: LocalDate&#xa;- expirationDate: LocalDate&#xa;- cancelRequestedAt: Instant?&#xa;- suspendedAt: Instant?&#xa;- failedAttempts: Int&#xa;- version: Long&#xa;─────────────────&#xa;+ renew(): Subscription&#xa;+ cancel(): Subscription&#xa;+ suspend(): Subscription&#xa;+ isExpired(): Boolean" style="shape=mxgraph.uml25.classNode;html=1;align=left;spacingLeft=8;verticalAlign=top;fillColor=#FFE0B2;strokeColor=#E65100;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="320" y="160" width="240" height="290" as="geometry" />
+        </mxCell>
+
+        <mxCell id="payment_method_entity" value="&lt;b&gt;PaymentMethod&lt;/b&gt;&#xa;─────────────────&#xa;- id: UUID&#xa;- userId: UserId&#xa;- provider: String&#xa;- token: String&#xa;- active: Boolean&#xa;- createdAt: Instant&#xa;─────────────────&#xa;+ deactivate(): void" style="shape=mxgraph.uml25.classNode;html=1;align=left;spacingLeft=8;verticalAlign=top;fillColor=#FFE0B2;strokeColor=#E65100;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="600" y="160" width="200" height="180" as="geometry" />
+        </mxCell>
+
+        <mxCell id="payment_attempt_entity" value="&lt;b&gt;PaymentAttempt&lt;/b&gt;&#xa;─────────────────&#xa;- id: UUID&#xa;- subscriptionId: SubscriptionId&#xa;- amount: Money&#xa;- status: String&#xa;- attemptNumber: Int&#xa;- idempotencyKey: String&#xa;- providerTransactionId: String?&#xa;- errorCode: String?&#xa;- errorMessage: String?&#xa;- createdAt: Instant" style="shape=mxgraph.uml25.classNode;html=1;align=left;spacingLeft=8;verticalAlign=top;fillColor=#FFE0B2;strokeColor=#E65100;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="840" y="160" width="250" height="210" as="geometry" />
+        </mxCell>
+
+        <!-- Domain: Enums -->
+        <mxCell id="plan_enum" value="&lt;b&gt;&amp;lt;&amp;lt;enum&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;Plan&lt;/b&gt;&#xa;─────────────────&#xa;BASICO&#xa;PREMIUM&#xa;FAMILIA" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFE0B2;strokeColor=#E65100;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="80" y="400" width="150" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="status_enum" value="&lt;b&gt;&amp;lt;&amp;lt;enum&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;SubscriptionStatus&lt;/b&gt;&#xa;─────────────────&#xa;ATIVA&#xa;PENDENTE_PAGAMENTO&#xa;SUSPENSA&#xa;EXPIRADA&#xa;CANCELADA" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFE0B2;strokeColor=#E65100;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="260" y="500" width="180" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- Domain: Value Objects -->
+        <mxCell id="money_vo" value="&lt;b&gt;&amp;lt;&amp;lt;value object&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;Money&lt;/b&gt;&#xa;─────────────────&#xa;- amount: BigDecimal&#xa;- currency: String" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFE0B2;strokeColor=#E65100;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="80" y="570" width="160" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="subscription_id_vo" value="&lt;b&gt;&amp;lt;&amp;lt;value object&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;SubscriptionId&lt;/b&gt;&#xa;─────────────────&#xa;- value: UUID" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFE0B2;strokeColor=#E65100;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="80" y="710" width="160" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="user_id_vo" value="&lt;b&gt;&amp;lt;&amp;lt;value object&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;UserId&lt;/b&gt;&#xa;─────────────────&#xa;- value: UUID" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFE0B2;strokeColor=#E65100;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="80" y="840" width="160" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Domain: Sealed Types -->
+        <mxCell id="payment_result_sealed" value="&lt;b&gt;&amp;lt;&amp;lt;sealed&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;PaymentResult&lt;/b&gt;&#xa;─────────────────&#xa;+ Approved(transactionId)&#xa;+ Rejected(errorCode, message)&#xa;+ Error(exception)" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFE0B2;strokeColor=#E65100;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="480" y="500" width="220" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="domain_event_sealed" value="&lt;b&gt;&amp;lt;&amp;lt;sealed&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;DomainEvent&lt;/b&gt;&#xa;─────────────────&#xa;- subscriptionId: SubscriptionId&#xa;- eventType: String&#xa;- occurredAt: Instant" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFE0B2;strokeColor=#E65100;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="740" y="500" width="230" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Domain: Event Subtypes -->
+        <mxCell id="subscription_created_event" value="&lt;b&gt;SubscriptionCreated&lt;/b&gt;&#xa;─────────────────&#xa;- plan: Plan&#xa;- userId: UserId" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFE0B2;strokeColor=#E65100;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="600" y="680" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="subscription_renewed_event" value="&lt;b&gt;SubscriptionRenewed&lt;/b&gt;&#xa;─────────────────&#xa;- newExpirationDate: LocalDate" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFE0B2;strokeColor=#E65100;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="810" y="680" width="200" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="subscription_canceled_event" value="&lt;b&gt;SubscriptionCanceled&lt;/b&gt;&#xa;─────────────────&#xa;- reason: String" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFE0B2;strokeColor=#E65100;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="600" y="800" width="180" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="subscription_suspended_event" value="&lt;b&gt;SubscriptionSuspended&lt;/b&gt;&#xa;─────────────────&#xa;- failedAttempts: Int" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFE0B2;strokeColor=#E65100;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="810" y="800" width="200" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Domain Event inheritance arrows (association) -->
+        <mxCell id="edge_created_to_event" value="extends" style="endArrow=block;endFill=0;html=1;rounded=0;strokeColor=#E65100;fontSize=10;" edge="1" parent="1" source="subscription_created_event" target="domain_event_sealed">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_renewed_to_event" value="extends" style="endArrow=block;endFill=0;html=1;rounded=0;strokeColor=#E65100;fontSize=10;" edge="1" parent="1" source="subscription_renewed_event" target="domain_event_sealed">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_canceled_to_event" value="extends" style="endArrow=block;endFill=0;html=1;rounded=0;strokeColor=#E65100;fontSize=10;" edge="1" parent="1" source="subscription_canceled_event" target="domain_event_sealed">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_suspended_to_event" value="extends" style="endArrow=block;endFill=0;html=1;rounded=0;strokeColor=#E65100;fontSize=10;" edge="1" parent="1" source="subscription_suspended_event" target="domain_event_sealed">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- APPLICATION LAYER PACKAGE (Yellow #FFF9C4) -->
+        <!-- ============================================ -->
+        <mxCell id="application_layer" value="Application_Layer" style="shape=mxgraph.uml25.package;html=1;align=left;spacingLeft=10;verticalAlign=top;spacingTop=-2;fontSize=14;fontStyle=1;tabWidth=140;tabHeight=25;fillColor=#FFF9C4;strokeColor=#F57F17;rounded=0;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="100" width="800" height="880" as="geometry" />
+        </mxCell>
+
+        <!-- Application: Use Cases -->
+        <mxCell id="create_user_uc" value="&lt;b&gt;CreateUserUseCase&lt;/b&gt;&#xa;─────────────────&#xa;+ execute(command): User" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFF9C4;strokeColor=#F57F17;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="160" width="200" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="create_subscription_uc" value="&lt;b&gt;CreateSubscriptionUseCase&lt;/b&gt;&#xa;─────────────────&#xa;+ execute(command): Subscription" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFF9C4;strokeColor=#F57F17;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="260" width="230" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="renew_subscriptions_uc" value="&lt;b&gt;RenewExpiredSubscriptionsUseCase&lt;/b&gt;&#xa;─────────────────&#xa;+ execute(): List&amp;lt;Subscription&amp;gt;" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFF9C4;strokeColor=#F57F17;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="360" width="250" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cancel_subscription_uc" value="&lt;b&gt;CancelSubscriptionUseCase&lt;/b&gt;&#xa;─────────────────&#xa;+ execute(command): Subscription" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFF9C4;strokeColor=#F57F17;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="460" width="230" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="get_active_subscription_uc" value="&lt;b&gt;GetActiveSubscriptionUseCase&lt;/b&gt;&#xa;─────────────────&#xa;+ execute(userId): Subscription?" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFF9C4;strokeColor=#F57F17;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="560" width="240" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Application: Port Interfaces -->
+        <mxCell id="user_repo_port" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;UserRepositoryPort&lt;/b&gt;&#xa;─────────────────&#xa;+ save(user): User&#xa;+ findById(id): User?&#xa;+ findByEmail(email): User?" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFF9C4;strokeColor=#F57F17;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="1870" y="160" width="200" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="subscription_repo_port" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;SubscriptionRepositoryPort&lt;/b&gt;&#xa;─────────────────&#xa;+ save(sub): Subscription&#xa;+ findById(id): Subscription?&#xa;+ findExpiredForRenewal(): List&#xa;+ findActiveByUserId(userId): Subscription?" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFF9C4;strokeColor=#F57F17;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="1870" y="300" width="260" height="140" as="geometry" />
+        </mxCell>
+
+        <mxCell id="payment_gateway_port" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;PaymentGatewayPort&lt;/b&gt;&#xa;─────────────────&#xa;+ processPayment(amount, method,&#xa;  idempotencyKey): PaymentResult" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFF9C4;strokeColor=#F57F17;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="1870" y="460" width="260" height="110" as="geometry" />
+        </mxCell>
+
+        <mxCell id="subscription_cache_port" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;SubscriptionCachePort&lt;/b&gt;&#xa;─────────────────&#xa;+ get(userId): Subscription?&#xa;+ put(userId, sub): void&#xa;+ evict(userId): void" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFF9C4;strokeColor=#F57F17;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="1870" y="590" width="220" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="event_publisher_port" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;EventPublisherPort&lt;/b&gt;&#xa;─────────────────&#xa;+ publish(event: DomainEvent): void" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFF9C4;strokeColor=#F57F17;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="1870" y="730" width="230" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lock_manager_port" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;LockManagerPort&lt;/b&gt;&#xa;─────────────────&#xa;+ acquireLock(key, ttl): Boolean&#xa;+ releaseLock(key): void" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFF9C4;strokeColor=#F57F17;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="2130" y="160" width="220" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="observability_port" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;ObservabilityPort&lt;/b&gt;&#xa;─────────────────&#xa;+ logEvent(level, message): void&#xa;+ recordMetric(name, value): void&#xa;+ startSpan(name): Span" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFF9C4;strokeColor=#F57F17;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="2130" y="290" width="220" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="secrets_port" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;SecretsPort&lt;/b&gt;&#xa;─────────────────&#xa;+ getSecret(key): String&#xa;+ getSecretAsMap(key): Map" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#FFF9C4;strokeColor=#F57F17;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="2130" y="440" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- ADAPTER LAYER PACKAGE (Green #C8E6C9) -->
+        <!-- ============================================ -->
+        <mxCell id="adapter_layer" value="Adapter_Layer" style="shape=mxgraph.uml25.package;html=1;align=left;spacingLeft=10;verticalAlign=top;spacingTop=-2;fontSize=14;fontStyle=1;tabWidth=120;tabHeight=25;fillColor=#C8E6C9;strokeColor=#2E7D32;rounded=0;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="2420" y="100" width="820" height="880" as="geometry" />
+        </mxCell>
+
+        <!-- Adapter: Inbound -->
+        <mxCell id="subscription_controller" value="&lt;b&gt;&amp;lt;&amp;lt;adapter&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;SubscriptionController&lt;/b&gt;&#xa;─────────────────&#xa;+ createUser(request): Response&#xa;+ createSubscription(request): Response&#xa;+ cancelSubscription(id): Response&#xa;+ getActiveSubscription(userId): Response" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="2460" y="160" width="280" height="140" as="geometry" />
+        </mxCell>
+
+        <mxCell id="renew_scheduler" value="&lt;b&gt;&amp;lt;&amp;lt;adapter&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;RenewSubscriptionScheduler&lt;/b&gt;&#xa;─────────────────&#xa;+ triggerRenewal(): void" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="2460" y="330" width="250" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Adapter: Outbound (GCP implementations) -->
+        <mxCell id="gcp_sql_subscription_adapter" value="&lt;b&gt;&amp;lt;&amp;lt;adapter&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;GcpCloudSqlSubscription&#xa;RepositoryAdapter&lt;/b&gt;&#xa;─────────────────&#xa;Cloud SQL (PostgreSQL)" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="2780" y="160" width="220" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gcp_sql_user_adapter" value="&lt;b&gt;&amp;lt;&amp;lt;adapter&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;GcpCloudSqlUser&#xa;RepositoryAdapter&lt;/b&gt;&#xa;─────────────────&#xa;Cloud SQL (PostgreSQL)" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="2780" y="280" width="220" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gcp_memorystore_adapter" value="&lt;b&gt;&amp;lt;&amp;lt;adapter&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;GcpMemorystore&#xa;CacheAdapter&lt;/b&gt;&#xa;─────────────────&#xa;Memorystore (Redis)" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="2780" y="400" width="220" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gcp_pubsub_adapter" value="&lt;b&gt;&amp;lt;&amp;lt;adapter&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;GcpPubSub&#xa;EventPublisherAdapter&lt;/b&gt;&#xa;─────────────────&#xa;Cloud Pub/Sub" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="2780" y="520" width="220" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gcp_secret_manager_adapter" value="&lt;b&gt;&amp;lt;&amp;lt;adapter&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;GcpSecretManager&#xa;Adapter&lt;/b&gt;&#xa;─────────────────&#xa;Secret Manager" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="2780" y="640" width="220" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gcp_logging_adapter" value="&lt;b&gt;&amp;lt;&amp;lt;adapter&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;GcpCloudLogging&#xa;ObservabilityAdapter&lt;/b&gt;&#xa;─────────────────&#xa;Cloud Logging / Monitoring" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="2780" y="760" width="220" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="payment_provider_adapter" value="&lt;b&gt;&amp;lt;&amp;lt;adapter&amp;gt;&amp;gt;&lt;/b&gt;&#xa;&lt;b&gt;PaymentProviderAdapter&lt;/b&gt;&#xa;─────────────────&#xa;External Payment Provider" style="shape=mxgraph.uml25.classNode;html=1;align=center;verticalAlign=top;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;whiteSpace=wrap;overflow=hidden;" vertex="1" parent="1">
+          <mxGeometry x="2460" y="460" width="230" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- DEPENDENCY ARROWS: Controllers → Use Cases -->
+        <!-- ============================================ -->
+        <mxCell id="edge_ctrl_to_create_user" value="depends on" style="endArrow=open;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#2E7D32;fontSize=10;exitX=0;exitY=0.25;exitDx=0;exitDy=0;" edge="1" parent="1" source="subscription_controller" target="create_user_uc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_ctrl_to_create_sub" value="depends on" style="endArrow=open;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#2E7D32;fontSize=10;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="subscription_controller" target="create_subscription_uc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_ctrl_to_cancel" value="depends on" style="endArrow=open;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#2E7D32;fontSize=10;exitX=0;exitY=0.75;exitDx=0;exitDy=0;" edge="1" parent="1" source="subscription_controller" target="cancel_subscription_uc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_ctrl_to_get_active" value="depends on" style="endArrow=open;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#2E7D32;fontSize=10;" edge="1" parent="1" source="subscription_controller" target="get_active_subscription_uc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_scheduler_to_renew" value="depends on" style="endArrow=open;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#2E7D32;fontSize=10;" edge="1" parent="1" source="renew_scheduler" target="renew_subscriptions_uc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- DEPENDENCY ARROWS: Use Cases → Ports -->
+        <!-- ============================================ -->
+        <mxCell id="edge_create_user_to_repo" value="depends on" style="endArrow=open;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#F57F17;fontSize=10;" edge="1" parent="1" source="create_user_uc" target="user_repo_port">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_create_sub_to_subrepo" value="depends on" style="endArrow=open;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#F57F17;fontSize=10;" edge="1" parent="1" source="create_subscription_uc" target="subscription_repo_port">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_create_sub_to_payment" value="depends on" style="endArrow=open;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#F57F17;fontSize=10;" edge="1" parent="1" source="create_subscription_uc" target="payment_gateway_port">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_create_sub_to_event" value="depends on" style="endArrow=open;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#F57F17;fontSize=10;" edge="1" parent="1" source="create_subscription_uc" target="event_publisher_port">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_renew_to_subrepo" value="depends on" style="endArrow=open;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#F57F17;fontSize=10;" edge="1" parent="1" source="renew_subscriptions_uc" target="subscription_repo_port">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_renew_to_payment" value="depends on" style="endArrow=open;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#F57F17;fontSize=10;" edge="1" parent="1" source="renew_subscriptions_uc" target="payment_gateway_port">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_renew_to_lock" value="depends on" style="endArrow=open;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#F57F17;fontSize=10;" edge="1" parent="1" source="renew_subscriptions_uc" target="lock_manager_port">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_renew_to_event" value="depends on" style="endArrow=open;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#F57F17;fontSize=10;" edge="1" parent="1" source="renew_subscriptions_uc" target="event_publisher_port">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_cancel_to_subrepo" value="depends on" style="endArrow=open;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#F57F17;fontSize=10;" edge="1" parent="1" source="cancel_subscription_uc" target="subscription_repo_port">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_cancel_to_event" value="depends on" style="endArrow=open;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#F57F17;fontSize=10;" edge="1" parent="1" source="cancel_subscription_uc" target="event_publisher_port">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_get_active_to_cache" value="depends on" style="endArrow=open;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#F57F17;fontSize=10;" edge="1" parent="1" source="get_active_subscription_uc" target="subscription_cache_port">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_get_active_to_subrepo" value="depends on" style="endArrow=open;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#F57F17;fontSize=10;" edge="1" parent="1" source="get_active_subscription_uc" target="subscription_repo_port">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- DEPENDENCY ARROWS: Use Cases → Domain -->
+        <!-- ============================================ -->
+        <mxCell id="edge_create_user_uc_to_domain" value="uses" style="endArrow=open;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#F57F17;fontSize=10;" edge="1" parent="1" source="create_user_uc" target="user_entity">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_create_sub_uc_to_domain" value="uses" style="endArrow=open;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#F57F17;fontSize=10;" edge="1" parent="1" source="create_subscription_uc" target="subscription_entity">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_renew_uc_to_domain" value="uses" style="endArrow=open;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#F57F17;fontSize=10;" edge="1" parent="1" source="renew_subscriptions_uc" target="subscription_entity">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_cancel_uc_to_domain" value="uses" style="endArrow=open;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#F57F17;fontSize=10;" edge="1" parent="1" source="cancel_subscription_uc" target="subscription_entity">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_get_active_uc_to_domain" value="uses" style="endArrow=open;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#F57F17;fontSize=10;" edge="1" parent="1" source="get_active_subscription_uc" target="subscription_entity">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- REALIZATION ARROWS: Adapters → Ports (implements) -->
+        <!-- Dashed with hollow triangle (block endArrow, endFill=0) -->
+        <!-- ============================================ -->
+        <mxCell id="edge_gcp_sql_sub_to_port" value="implements" style="endArrow=block;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#2E7D32;fontSize=10;" edge="1" parent="1" source="gcp_sql_subscription_adapter" target="subscription_repo_port">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_gcp_sql_user_to_port" value="implements" style="endArrow=block;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#2E7D32;fontSize=10;" edge="1" parent="1" source="gcp_sql_user_adapter" target="user_repo_port">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_gcp_memorystore_to_port" value="implements" style="endArrow=block;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#2E7D32;fontSize=10;" edge="1" parent="1" source="gcp_memorystore_adapter" target="subscription_cache_port">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_gcp_pubsub_to_port" value="implements" style="endArrow=block;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#2E7D32;fontSize=10;" edge="1" parent="1" source="gcp_pubsub_adapter" target="event_publisher_port">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_gcp_secret_to_port" value="implements" style="endArrow=block;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#2E7D32;fontSize=10;" edge="1" parent="1" source="gcp_secret_manager_adapter" target="secrets_port">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_gcp_logging_to_port" value="implements" style="endArrow=block;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#2E7D32;fontSize=10;" edge="1" parent="1" source="gcp_logging_adapter" target="observability_port">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge_payment_adapter_to_port" value="implements" style="endArrow=block;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#2E7D32;fontSize=10;" edge="1" parent="1" source="payment_provider_adapter" target="payment_gateway_port">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- LEGEND -->
+        <!-- ============================================ -->
+        <mxCell id="legend_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#666666;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1020" width="700" height="160" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend_title" value="&lt;b&gt;Legend&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1030" width="100" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend_domain" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#E65100;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1065" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_domain_label" value="Domain_Layer (Entities, Value Objects, Events, Enums)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="90" y="1065" width="350" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend_app" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F57F17;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1095" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_app_label" value="Application_Layer (Use Cases, Port Interfaces)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="90" y="1095" width="350" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend_adapter" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1125" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_adapter_label" value="Adapter_Layer (Controllers, Schedulers, GCP Adapters)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="90" y="1125" width="350" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend_arrows_title" value="&lt;b&gt;Arrows:&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="470" y="1030" width="80" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend_dep_arrow" value="" style="endArrow=open;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#666666;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="470" y="1075" as="sourcePoint" />
+            <mxPoint x="530" y="1075" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend_dep_label" value="Dashed dependency (depends on / uses)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="540" y="1065" width="250" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend_real_arrow" value="" style="endArrow=block;endFill=0;html=1;dashed=1;dashPattern=8 8;strokeColor=#666666;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="470" y="1105" as="sourcePoint" />
+            <mxPoint x="530" y="1105" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend_real_label" value="Realization (implements interface)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="540" y="1095" width="250" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend_inherit_arrow" value="" style="endArrow=block;endFill=0;html=1;rounded=0;strokeColor=#666666;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="470" y="1135" as="sourcePoint" />
+            <mxPoint x="530" y="1135" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend_inherit_label" value="Inheritance / extends (sealed subtypes)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="540" y="1125" width="250" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- NOTES -->
+        <!-- ============================================ -->
+        <mxCell id="note_cloud_agnostic" value="&lt;b&gt;Cloud-Agnostic Design:&lt;/b&gt;&#xa;• Domain_Layer and Application_Layer contain NO cloud-specific concepts&#xa;• All GCP/AWS/Azure SDKs are isolated in Adapter_Layer&#xa;• Migration requires only new adapter implementations&#xa;• Port interfaces remain stable across providers" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=15;fillColor=#FFF9C4;strokeColor=#F57F17;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="800" y="1020" width="350" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="note_dependency_rule" value="&lt;b&gt;Dependency Rule (Hexagonal):&lt;/b&gt;&#xa;• Adapters → Use Cases (inbound flow)&#xa;• Use Cases → Ports (outbound abstraction)&#xa;• Adapters → Ports (implements)&#xa;• Use Cases → Domain (business logic)&#xa;• ⛔ NO arrows from Domain → Adapters/Infrastructure" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=15;fillColor=#FFCDD2;strokeColor=#C62828;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="1020" width="320" height="110" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

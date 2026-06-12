@@ -1,0 +1,517 @@
+<mxfile host="app.diagrams.net" modified="2025-01-01T00:00:00.000Z" agent="Kiro" version="21.0.0" type="device">
+  <diagram name="Subscription System Architecture" id="arch-subscription-system">
+    <mxGraphModel dx="2200" dy="1800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="1800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ============================================================ -->
+        <!-- REGION 1: CURRENT ARCHITECTURE (Main Bounded Region)         -->
+        <!-- ============================================================ -->
+        <mxCell id="region-current" value="CURRENT ARCHITECTURE — Single Modular Microservice" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#333333;strokeWidth=3;dashed=0;verticalAlign=top;align=left;spacingLeft=10;fontSize=16;fontStyle=1;fontColor=#333333;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="1520" height="880" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- EXTERNAL COMPONENTS (Purple #E1BEE7)                         -->
+        <!-- ============================================================ -->
+
+        <!-- Client / API Consumer -->
+        <mxCell id="ext-client" value="Client / API Consumer&#xa;(Consumidor da API)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#9C27B0;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="80" y="140" width="160" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- API Gateway / Load Balancer -->
+        <mxCell id="ext-gateway" value="API Gateway /&#xa;Load Balancer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#9C27B0;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="80" y="280" width="160" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Payment Provider -->
+        <mxCell id="ext-payment" value="Payment Provider&#xa;(Provedor de Pagamento)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#9C27B0;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1360" y="280" width="170" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Message Broker -->
+        <mxCell id="ext-broker" value="Message Broker&#xa;(Barramento de Eventos)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#9C27B0;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1360" y="420" width="170" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- SUBSCRIPTION SERVICE CONTAINER (Hexagonal Architecture)      -->
+        <!-- ============================================================ -->
+        <mxCell id="svc-container" value="Subscription Service (Serviço de Assinaturas)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#666666;strokeWidth=2;dashed=0;verticalAlign=top;align=center;spacingTop=5;fontSize=14;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="300" y="100" width="1000" height="500" as="geometry" />
+        </mxCell>
+
+        <!-- === INBOUND ADAPTERS (Green #C8E6C9) === -->
+        <mxCell id="layer-inbound" value="Inbound Adapters" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#4CAF50;strokeWidth=2;verticalAlign=top;align=center;fontSize=11;fontStyle=1;fontColor=#2E7D32;" vertex="1" parent="1">
+          <mxGeometry x="320" y="140" width="180" height="200" as="geometry" />
+        </mxCell>
+
+        <mxCell id="adapter-rest" value="SubscriptionController&#xa;(REST API)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#4CAF50;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="335" y="175" width="150" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="adapter-scheduler" value="RenewSubscription&#xa;Scheduler" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#4CAF50;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="335" y="240" width="150" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Scheduler (External trigger - Gray) -->
+        <mxCell id="ext-scheduler" value="Scheduler&#xa;(Cron Trigger)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#9E9E9E;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="80" y="420" width="160" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- === APPLICATION / USE CASES (Yellow #FFF9C4) === -->
+        <mxCell id="layer-app" value="Application Layer / Use Cases" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#FBC02D;strokeWidth=2;verticalAlign=top;align=center;fontSize=11;fontStyle=1;fontColor=#F57F17;" vertex="1" parent="1">
+          <mxGeometry x="530" y="140" width="220" height="260" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-create-sub" value="CreateSubscription&#xa;UseCase" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#FBC02D;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="550" y="175" width="150" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-renew" value="RenewExpired&#xa;SubscriptionsUseCase" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#FBC02D;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="550" y="225" width="150" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-cancel" value="CancelSubscription&#xa;UseCase" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#FBC02D;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="550" y="275" width="150" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-get" value="GetActiveSubscription&#xa;UseCase" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#FBC02D;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="550" y="325" width="150" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- === DOMAIN MODEL (Orange #FFE0B2) === -->
+        <mxCell id="layer-domain" value="Domain Model (Modelo de Domínio)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#FF9800;strokeWidth=2;verticalAlign=top;align=center;fontSize=11;fontStyle=1;fontColor=#E65100;" vertex="1" parent="1">
+          <mxGeometry x="780" y="140" width="220" height="260" as="geometry" />
+        </mxCell>
+
+        <mxCell id="domain-subscription" value="Subscription&#xa;(Assinatura)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#FF9800;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="800" y="175" width="140" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="domain-user" value="User&#xa;(Usuário)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#FF9800;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="800" y="225" width="140" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="domain-payment" value="PaymentAttempt&#xa;(Tentativa de Pagamento)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#FF9800;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="800" y="275" width="140" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="domain-events" value="Domain Events&#xa;(Eventos de Domínio)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#FF9800;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="800" y="325" width="140" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- === OUTBOUND PORTS (Yellow #FFF9C4 - part of Application Layer) === -->
+        <mxCell id="layer-ports" value="Outbound Ports (Interfaces)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#FBC02D;strokeWidth=2;dashed=1;verticalAlign=top;align=center;fontSize=11;fontStyle=1;fontColor=#F57F17;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="140" width="240" height="440" as="geometry" />
+        </mxCell>
+
+        <mxCell id="port-repo" value="&lt;&lt;interface&gt;&gt;&#xa;SubscriptionRepositoryPort" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#FBC02D;fontSize=9;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="1045" y="175" width="210" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="port-cache" value="&lt;&lt;interface&gt;&gt;&#xa;SubscriptionCachePort" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#FBC02D;fontSize=9;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="1045" y="225" width="210" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="port-payment" value="&lt;&lt;interface&gt;&gt;&#xa;PaymentGatewayPort" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#FBC02D;fontSize=9;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="1045" y="275" width="210" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="port-event" value="&lt;&lt;interface&gt;&gt;&#xa;EventPublisherPort" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#FBC02D;fontSize=9;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="1045" y="325" width="210" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="port-observability" value="&lt;&lt;interface&gt;&gt;&#xa;ObservabilityPort" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#FBC02D;fontSize=9;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="1045" y="375" width="210" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="port-secrets" value="&lt;&lt;interface&gt;&gt;&#xa;SecretsPort" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#FBC02D;fontSize=9;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="1045" y="425" width="210" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="port-lock" value="&lt;&lt;interface&gt;&gt;&#xa;LockManagerPort" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#FBC02D;fontSize=9;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="1045" y="475" width="210" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- INFRASTRUCTURE COMPONENTS (Gray #F5F5F5)                      -->
+        <!-- ============================================================ -->
+
+        <!-- PostgreSQL -->
+        <mxCell id="infra-postgres" value="PostgreSQL&#xa;(Banco de Dados)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#F5F5F5;strokeColor=#9E9E9E;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="350" y="680" width="130" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Redis/Caffeine Cache -->
+        <mxCell id="infra-cache" value="Redis / Caffeine&#xa;(Cache)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#9E9E9E;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="550" y="680" width="130" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- OBSERVABILITY COMPONENTS (Purple/Gray)                        -->
+        <!-- ============================================================ -->
+        <mxCell id="obs-container" value="Observability (Observabilidade)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#7B1FA2;strokeWidth=1;dashed=1;verticalAlign=top;align=center;fontSize=11;fontStyle=1;fontColor=#7B1FA2;" vertex="1" parent="1">
+          <mxGeometry x="300" y="790" width="500" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="obs-logs" value="Logs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#9C27B0;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="330" y="825" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="obs-metrics" value="Metrics&#xa;(Métricas)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#9C27B0;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="470" y="825" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="obs-traces" value="Traces&#xa;(Rastreamento)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#9C27B0;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="610" y="825" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- CONNECTIONS: MAIN REQUEST FLOW                                -->
+        <!-- Client → Gateway → REST API → Use Case → Domain → Ports     -->
+        <!-- ============================================================ -->
+
+        <!-- Client → API Gateway -->
+        <mxCell id="edge-client-gw" value="HTTP Request" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#333333;fontSize=9;" edge="1" parent="1" source="ext-client" target="ext-gateway">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- API Gateway → REST Controller -->
+        <mxCell id="edge-gw-rest" value="routes request" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#333333;fontSize=9;" edge="1" parent="1" source="ext-gateway" target="adapter-rest">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Scheduler → Scheduler Adapter -->
+        <mxCell id="edge-sched-adapter" value="triggers cron job" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#333333;fontSize=9;" edge="1" parent="1" source="ext-scheduler" target="adapter-scheduler">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- REST Controller → Use Cases -->
+        <mxCell id="edge-rest-uc" value="invokes use case" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#2E7D32;dashed=1;fontSize=9;" edge="1" parent="1" source="adapter-rest" target="uc-create-sub">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Scheduler Adapter → Renew Use Case -->
+        <mxCell id="edge-sched-uc" value="invokes renewal" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#2E7D32;dashed=1;fontSize=9;" edge="1" parent="1" source="adapter-scheduler" target="uc-renew">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Use Case → Domain -->
+        <mxCell id="edge-uc-domain" value="orchestrates domain logic" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#F57F17;dashed=1;fontSize=9;" edge="1" parent="1" source="uc-create-sub" target="domain-subscription">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Renew Use Case → Domain -->
+        <mxCell id="edge-renew-domain" value="processes renewal" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#F57F17;dashed=1;fontSize=9;" edge="1" parent="1" source="uc-renew" target="domain-subscription">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Domain → Outbound Port (Repository) -->
+        <mxCell id="edge-domain-repo-port" value="persists via port" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#E65100;dashed=1;fontSize=9;" edge="1" parent="1" source="domain-subscription" target="port-repo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Use Case → Cache Port -->
+        <mxCell id="edge-uc-cache" value="queries/invalidates cache" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#F57F17;dashed=1;fontSize=9;" edge="1" parent="1" source="uc-get" target="port-cache">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Use Case → Payment Port -->
+        <mxCell id="edge-uc-payment" value="processes payment" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#F57F17;dashed=1;fontSize=9;" edge="1" parent="1" source="uc-renew" target="port-payment">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Domain Events → Event Publisher Port -->
+        <mxCell id="edge-domain-event" value="publishes domain event" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#E65100;dashed=1;fontSize=9;" edge="1" parent="1" source="domain-events" target="port-event">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- CONNECTIONS: PORTS → EXTERNAL/INFRASTRUCTURE                  -->
+        <!-- (All pass through Outbound Ports)                            -->
+        <!-- ============================================================ -->
+
+        <!-- Repository Port → PostgreSQL -->
+        <mxCell id="edge-port-repo-pg" value="persists to database" style="endArrow=classic;html=1;rounded=1;strokeWidth=2;strokeColor=#9E9E9E;fontSize=9;" edge="1" parent="1" source="port-repo" target="infra-postgres">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1150" y="640" />
+              <mxPoint x="415" y="640" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Cache Port → Redis/Caffeine -->
+        <mxCell id="edge-port-cache-redis" value="reads/writes cache" style="endArrow=classic;html=1;rounded=1;strokeWidth=2;strokeColor=#9E9E9E;fontSize=9;" edge="1" parent="1" source="port-cache" target="infra-cache">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1100" y="650" />
+              <mxPoint x="615" y="650" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Payment Port → Payment Provider -->
+        <mxCell id="edge-port-payment-ext" value="charges payment" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#9C27B0;fontSize=9;" edge="1" parent="1" source="port-payment" target="ext-payment">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Event Publisher Port → Message Broker -->
+        <mxCell id="edge-port-event-broker" value="publishes event" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#9C27B0;fontSize=9;" edge="1" parent="1" source="port-event" target="ext-broker">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Observability Port → Observability -->
+        <mxCell id="edge-port-obs" value="emits telemetry" style="endArrow=classic;html=1;rounded=1;strokeWidth=1;strokeColor=#7B1FA2;dashed=1;fontSize=9;" edge="1" parent="1" source="port-observability" target="obs-container">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1150" y="760" />
+              <mxPoint x="550" y="760" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Service → Observability (all layers emit telemetry) -->
+        <mxCell id="edge-svc-obs" value="all layers emit telemetry" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#7B1FA2;dashed=1;fontSize=9;" edge="1" parent="1" source="svc-container" target="obs-container">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="650" y="600" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- REGION 2: CLOUD INFRASTRUCTURE (Generic Boundary)            -->
+        <!-- ============================================================ -->
+        <mxCell id="region-cloud" value="CLOUD INFRASTRUCTURE — Generic Boundary (Infraestrutura Cloud)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#1565C0;strokeWidth=3;dashed=0;verticalAlign=top;align=left;spacingLeft=10;fontSize=16;fontStyle=1;fontColor=#1565C0;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="960" width="1520" height="380" as="geometry" />
+        </mxCell>
+
+        <!-- Abstract Service Categories -->
+        <mxCell id="cloud-header" value="Abstract Service Categories" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#1565C0;" vertex="1" parent="1">
+          <mxGeometry x="60" y="995" width="250" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Managed Database -->
+        <mxCell id="cloud-db" value="Managed Database&#xa;(Banco Gerenciado)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=12;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="1040" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Managed Cache -->
+        <mxCell id="cloud-cache" value="Managed Cache&#xa;(Cache Gerenciado)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="260" y="1040" width="140" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Messaging Service -->
+        <mxCell id="cloud-msg" value="Messaging Service&#xa;(Mensageria)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="440" y="1040" width="140" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Observability Platform -->
+        <mxCell id="cloud-obs" value="Observability Platform&#xa;(Plataforma de Observabilidade)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="620" y="1040" width="180" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Secrets Management -->
+        <mxCell id="cloud-secrets" value="Secrets Management&#xa;(Gestão de Segredos)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="840" y="1040" width="150" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Container Runtime -->
+        <mxCell id="cloud-runtime" value="Container Runtime&#xa;(Runtime de Contêiner)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="1040" width="150" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- V1 Implementation: GCP -->
+        <mxCell id="cloud-gcp-label" value="V1 Implementation: GCP" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontStyle=1;fontColor=#1B5E20;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1130" width="250" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gcp-db" value="Cloud SQL&#xa;(PostgreSQL)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#4CAF50;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="90" y="1165" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gcp-cache" value="Memorystore&#xa;(Redis)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#4CAF50;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="270" y="1165" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gcp-msg" value="Pub/Sub" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#4CAF50;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="450" y="1165" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gcp-obs" value="Cloud Logging /&#xa;Monitoring" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#4CAF50;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="640" y="1165" width="140" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gcp-secrets" value="Secret Manager" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#4CAF50;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="850" y="1165" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gcp-runtime" value="Cloud Run" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#4CAF50;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="1165" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Future Alternatives: AWS / Azure -->
+        <mxCell id="cloud-future-label" value="Future Alternatives (Alternativas Futuras): AWS / Azure" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=2;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1220" width="450" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="aws-db" value="AWS RDS /&#xa;Azure SQL" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#BDBDBD;fontSize=9;fontStyle=2;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="90" y="1255" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="aws-cache" value="ElastiCache /&#xa;Azure Cache" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#BDBDBD;fontSize=9;fontStyle=2;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="270" y="1255" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="aws-msg" value="SQS+SNS /&#xa;Service Bus" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#BDBDBD;fontSize=9;fontStyle=2;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="450" y="1255" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="aws-obs" value="CloudWatch /&#xa;Azure Monitor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#BDBDBD;fontSize=9;fontStyle=2;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="640" y="1255" width="140" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="aws-secrets" value="Secrets Manager /&#xa;Key Vault" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#BDBDBD;fontSize=9;fontStyle=2;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="850" y="1255" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="aws-runtime" value="ECS Fargate /&#xa;Azure Container Apps" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#BDBDBD;fontSize=9;fontStyle=2;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="1255" width="140" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Connection annotations: Ports → Cloud Services -->
+        <mxCell id="edge-cloud-db" value="implements RepositoryPort" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#1565C0;dashed=1;fontSize=8;" edge="1" parent="1" source="cloud-db" target="gcp-db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge-cloud-cache" value="implements CachePort" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#1565C0;dashed=1;fontSize=8;" edge="1" parent="1" source="cloud-cache" target="gcp-cache">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge-cloud-msg" value="implements EventPublisherPort" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#1565C0;dashed=1;fontSize=8;" edge="1" parent="1" source="cloud-msg" target="gcp-msg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge-cloud-obs" value="implements ObservabilityPort" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#1565C0;dashed=1;fontSize=8;" edge="1" parent="1" source="cloud-obs" target="gcp-obs">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge-cloud-secrets" value="implements SecretsPort" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#1565C0;dashed=1;fontSize=8;" edge="1" parent="1" source="cloud-secrets" target="gcp-secrets">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge-cloud-runtime" value="hosts service" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#1565C0;dashed=1;fontSize=8;" edge="1" parent="1" source="cloud-runtime" target="gcp-runtime">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- REGION 3: FUTURE MULTI-SERVICE EVOLUTION                      -->
+        <!-- ============================================================ -->
+        <mxCell id="region-future" value="FUTURE EVOLUTION — Multi-Service Vision (Evolução Futura)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#FF6F00;strokeWidth=3;dashed=1;verticalAlign=top;align=left;spacingLeft=10;fontSize=16;fontStyle=1;fontColor=#FF6F00;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1380" width="1520" height="160" as="geometry" />
+        </mxCell>
+
+        <mxCell id="future-sub" value="subscription-service&#xa;(Serviço de Assinaturas)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#FF9800;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="1430" width="170" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="future-payment" value="payment-service&#xa;(Serviço de Pagamento)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#FF9800;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="1430" width="170" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="future-billing" value="billing-scheduler-service&#xa;(Agendador de Cobrança)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#FF9800;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="1430" width="180" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="future-notification" value="notification-service&#xa;(Serviço de Notificação)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#FF9800;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="750" y="1430" width="170" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Future services interconnection -->
+        <mxCell id="edge-future-1" value="domain events" style="endArrow=classic;startArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#FF6F00;dashed=1;fontSize=8;" edge="1" parent="1" source="future-sub" target="future-payment">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge-future-2" value="schedules billing" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#FF6F00;dashed=1;fontSize=8;" edge="1" parent="1" source="future-payment" target="future-billing">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge-future-3" value="sends notifications" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#FF6F00;dashed=1;fontSize=8;" edge="1" parent="1" source="future-billing" target="future-notification">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Evolution annotation -->
+        <mxCell id="future-note" value="Migration triggers: team growth &gt; 8 devs,&#xa;independent release cadence needed,&#xa;or bounded context conflicts" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontStyle=2;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="980" y="1430" width="250" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- RENEWAL FLOW (Highlighted path)                              -->
+        <!-- Scheduler → RenewUseCase → Repository → PaymentGateway →    -->
+        <!-- Update Subscription → Publish Event                          -->
+        <!-- ============================================================ -->
+
+        <!-- Renewal flow annotation -->
+        <mxCell id="flow-renewal-label" value="RENEWAL FLOW (Fluxo de Renovação):&#xa;Scheduler → RenewUseCase → Repository →&#xa;PaymentGateway → Update → Publish Event" style="text;html=1;strokeColor=#FF6F00;fillColor=#FFF3E0;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontStyle=1;fontColor=#E65100;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="80" y="530" width="280" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- LEGEND (Color Coding)                                        -->
+        <!-- ============================================================ -->
+        <mxCell id="legend-container" value="LEGEND (Legenda)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#333333;strokeWidth=1;verticalAlign=top;align=left;spacingLeft=5;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1600" y="40" width="220" height="280" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-domain" value="Domain Layer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#FF9800;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1620" y="75" width="120" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-app" value="Application Layer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#FBC02D;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1620" y="115" width="120" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-adapter" value="Adapter Layer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#4CAF50;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1620" y="155" width="120" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-external" value="External / Infrastructure" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#9C27B0;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1620" y="195" width="140" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-cloud" value="Cloud Infrastructure" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1620" y="235" width="140" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-future-note" value="Gray/Italic = Future Alternatives" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontStyle=2;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="1620" y="275" width="180" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- FLOW ANNOTATIONS                                             -->
+        <!-- ============================================================ -->
+
+        <!-- Main Flow annotation -->
+        <mxCell id="flow-main-label" value="MAIN REQUEST FLOW (Fluxo Principal):&#xa;Client → REST API → Use Case → Domain →&#xa;Payment Port → Payment Provider&#xa;+ branches: Repository, Cache, Event Publisher" style="text;html=1;strokeColor=#1565C0;fillColor=#E3F2FD;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontStyle=1;fontColor=#0D47A1;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="80" y="620" width="280" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Cloud Agnostic Note -->
+        <mxCell id="note-agnostic" value="☁ All outbound connections pass through&#xa;Outbound_Port interfaces — the application&#xa;depends on abstractions, not cloud SDKs.&#xa;Migration = new adapters only." style="text;html=1;strokeColor=#1B5E20;fillColor=#E8F5E9;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontStyle=0;fontColor=#1B5E20;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="1600" y="360" width="220" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Port connection from Current Architecture to Cloud Infrastructure -->
+        <mxCell id="edge-arch-cloud-note" value="via Outbound_Port interfaces" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#1565C0;dashed=0;fontSize=9;fontStyle=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="780" y="920" as="sourcePoint" />
+            <mxPoint x="780" y="960" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
