@@ -15,7 +15,7 @@ Este documento especifica os requisitos para a implementação em código do Sis
 - **Renewal_Scheduler**: Componente Spring @Scheduled que executa a renovação automática em batch
 - **Cache_Adapter**: Adaptador Caffeine que implementa o SubscriptionCachePort para cache in-memory local
 - **Event_Publisher_Adapter**: Adaptador que implementa o EventPublisherPort para publicação de domain events
-- **Flyway**: Ferramenta de migração de banco de dados para versionamento de schema
+- **Liquibase**: Ferramenta de migração de banco de dados para versionamento de schema, utilizando changelogs em SQL puro
 - **Testcontainers**: Biblioteca para testes de integração com containers Docker (PostgreSQL)
 - **Hexagonal_Architecture**: Padrão onde Domain e Application não dependem de infraestrutura — dependências apontam para dentro
 - **Port**: Interface definida na Application_Layer que abstrai uma dependência externa
@@ -34,7 +34,7 @@ Este documento especifica os requisitos para a implementação em código do Sis
 3. WHEN the project is scaffolded, THE Subscription_Service SHALL organize source code into the following top-level packages: `domain`, `application`, `adapter`
 4. THE Subscription_Service SHALL configure the `domain` package to contain zero imports from Spring framework, JPA, or any infrastructure library
 5. THE Subscription_Service SHALL configure the `application` package to contain zero imports from Spring framework (except Spring stereotype annotations for dependency injection), JPA, or adapter-specific libraries
-6. THE Subscription_Service SHALL include a build configuration (Maven or Gradle) with dependency management for: Spring Boot Starter Web, Spring Boot Starter Data JPA, Spring Boot Starter Validation, PostgreSQL Driver, Flyway Core, Caffeine, Resilience4j, and Spring Boot Starter Test
+6. THE Subscription_Service SHALL include a build configuration (Maven or Gradle) with dependency management for: Spring Boot Starter Web, Spring Boot Starter Data JPA, Spring Boot Starter Validation, PostgreSQL Driver, Liquibase Core, Caffeine, Resilience4j, and Spring Boot Starter Test
 7. THE Subscription_Service SHALL include an `application.yml` configuration file with profiles for `local` (default) and `test`
 8. WHEN the project is scaffolded, THE Subscription_Service SHALL compile successfully and the Spring Boot application context SHALL load without errors
 
@@ -45,11 +45,11 @@ Este documento especifica os requisitos para a implementação em código do Sis
 #### Acceptance Criteria
 
 1. THE Domain_Layer SHALL implement the `User` entity with fields: id (UUID), name (String), email (String), active (boolean), createdAt (Instant), updatedAt (Instant)
-2. THE Domain_Layer SHALL implement the `Subscription` entity with fields: id (UUID), userId (UUID), plan (Plan), status (SubscriptionStatus), startDate (LocalDate), expirationDate (LocalDate), cancelRequestedAt (Instant nullable), suspendedAt (Instant nullable), failedAttempts (int), version (long), createdAt (Instant), updatedAt (Instant)
+2. THE Domain_Layer SHALL implement the `Subscription` entity with fields: id (UUID), userId (UUID), planId (UUID), priceAtPurchase (Money), status (SubscriptionStatus), startDate (LocalDate), expirationDate (LocalDate), cancelRequestedAt (Instant nullable), suspendedAt (Instant nullable), failedAttempts (int), version (long), createdAt (Instant), updatedAt (Instant)
 3. THE Domain_Layer SHALL implement the `PaymentMethod` entity with fields: id (UUID), userId (UUID), provider (String), token (String), active (boolean), createdAt (Instant), updatedAt (Instant)
 4. THE Domain_Layer SHALL implement the `PaymentAttempt` entity with fields: id (UUID), subscriptionId (UUID), amount (Money), status (PaymentAttemptStatus), attemptNumber (int), idempotencyKey (String), providerTransactionId (String nullable), errorCode (String nullable), errorMessage (String nullable), createdAt (Instant), processedAt (Instant nullable)
 5. THE Domain_Layer SHALL implement the `Money` value object as a Java record with fields: amount (BigDecimal), currency (String), enforcing that amount is non-negative
-6. THE Domain_Layer SHALL implement the `Plan` enum with values: BASICO, PREMIUM, FAMILIA, each providing its monthly price as a Money value object (R$19.90, R$39.90, R$59.90 respectively)
+6. THE Domain_Layer SHALL implement the `Plan` entity with fields: id (UUID), name (String), displayName (String), monthlyPrice (Money), active (boolean), createdAt (Instant), representing subscription plans stored in the database
 7. THE Domain_Layer SHALL implement the `SubscriptionStatus` enum with values: ATIVA, PENDENTE_PAGAMENTO, SUSPENSA, EXPIRADA, CANCELADA
 8. THE Domain_Layer SHALL implement the `PaymentAttemptStatus` enum with values: PROCESSING, APPROVED, FAILED, TIMEOUT
 9. WHEN the `Subscription` entity receives a renewal request, THE Subscription entity SHALL validate that status is ATIVA or PENDENTE_PAGAMENTO before allowing the operation
@@ -73,18 +73,20 @@ Este documento especifica os requisitos para a implementação em código do Sis
 4. THE Application_Layer SHALL define the `SubscriptionCachePort` interface with methods: getActiveSubscription(UUID userId), putActiveSubscription(UUID userId, Subscription), evictActiveSubscription(UUID userId)
 5. THE Application_Layer SHALL define the `EventPublisherPort` interface with methods: publish(DomainEvent)
 6. THE Application_Layer SHALL define the `LockManagerPort` interface with methods: acquireLock(String lockName, Duration ttl) returning boolean, releaseLock(String lockName)
-7. THE Application_Layer SHALL implement `CreateSubscriptionUseCase` that: validates no active subscription exists for the user via SubscriptionRepositoryPort, creates a new Subscription with status ATIVA, persists via SubscriptionRepositoryPort, invalidates cache via SubscriptionCachePort, and publishes SubscriptionCreated event
-8. THE Application_Layer SHALL implement `RenewExpiredSubscriptionsUseCase` that: acquires distributed lock via LockManagerPort, queries due subscriptions via SubscriptionRepositoryPort, for each subscription processes payment via PaymentGatewayPort, updates subscription state based on PaymentResult, persists changes, invalidates cache, and publishes the corresponding domain event
-9. THE Application_Layer SHALL implement `CancelSubscriptionUseCase` that: finds the subscription, calls the cancellation method on the domain entity, persists the updated subscription, invalidates cache, and publishes the appropriate domain event
-10. THE Application_Layer SHALL implement `GetActiveSubscriptionUseCase` that: first checks SubscriptionCachePort, on cache miss queries SubscriptionRepositoryPort, populates cache on miss, and returns the active subscription or empty
-11. THE Application_Layer SHALL implement `CreateUserUseCase` that: validates email uniqueness via UserRepositoryPort, and IF email is not unique THEN aborts user creation by throwing a domain-specific exception without modifying any state, otherwise creates a new User entity and persists via UserRepositoryPort
-12. WHEN `CreateSubscriptionUseCase` detects an existing active subscription for the user, THE use case SHALL throw a domain-specific exception without modifying any state
-13. WHEN `RenewExpiredSubscriptionsUseCase` fails to acquire the distributed lock, THE use case SHALL abort execution without processing any subscriptions
-14. FOR ALL use case executions that modify a Subscription, the resulting Subscription state SHALL be consistent with the domain invariants (status transitions, failedAttempts bounds, version increment)
+7. THE Application_Layer SHALL define the `PlanRepositoryPort` interface with methods: findById(UUID), findByName(String), findAllActive()
+8. THE Application_Layer SHALL define the `PlanCachePort` interface with methods: getAllActivePlans(), putAllActivePlans(List<Plan>), evictAllPlans()
+9. THE Application_Layer SHALL implement `CreateSubscriptionUseCase` that: validates no active subscription exists for the user via SubscriptionRepositoryPort, retrieves the Plan via PlanCachePort (or PlanRepositoryPort on cache miss), creates a new Subscription with status ATIVA and priceAtPurchase snapshot from the Plan's current monthlyPrice, persists via SubscriptionRepositoryPort, invalidates subscription cache via SubscriptionCachePort, and publishes SubscriptionCreated event
+10. THE Application_Layer SHALL implement `RenewExpiredSubscriptionsUseCase` that: acquires distributed lock via LockManagerPort, queries due subscriptions via SubscriptionRepositoryPort, for each subscription processes payment using the subscription's priceAtPurchase via PaymentGatewayPort, updates subscription state based on PaymentResult, persists changes, invalidates cache, and publishes the corresponding domain event
+11. THE Application_Layer SHALL implement `CancelSubscriptionUseCase` that: finds the subscription, calls the cancellation method on the domain entity, persists the updated subscription, invalidates cache, and publishes the appropriate domain event
+12. THE Application_Layer SHALL implement `GetActiveSubscriptionUseCase` that: first checks SubscriptionCachePort, on cache miss queries SubscriptionRepositoryPort, populates cache on miss, and returns the active subscription or empty
+13. THE Application_Layer SHALL implement `CreateUserUseCase` that: validates email uniqueness via UserRepositoryPort, and IF email is not unique THEN aborts user creation by throwing a domain-specific exception without modifying any state, otherwise creates a new User entity and persists via UserRepositoryPort
+14. WHEN `CreateSubscriptionUseCase` detects an existing active subscription for the user, THE use case SHALL throw a domain-specific exception without modifying any state
+15. WHEN `RenewExpiredSubscriptionsUseCase` fails to acquire the distributed lock, THE use case SHALL abort execution without processing any subscriptions
+16. FOR ALL use case executions that modify a Subscription, the resulting Subscription state SHALL be consistent with the domain invariants (status transitions, failedAttempts bounds, version increment)
 
 ### Requirement 4: Persistence Adapter — JPA e PostgreSQL Local
 
-**User Story:** As a developer, I want JPA repository adapters backed by a local PostgreSQL database with Flyway migrations, so that I can persist and query domain entities with proper schema versioning.
+**User Story:** As a developer, I want JPA repository adapters backed by a local PostgreSQL database with Liquibase changelogs, so that I can persist and query domain entities with proper schema versioning and full control over DDL.
 
 #### Acceptance Criteria
 
@@ -92,10 +94,11 @@ Este documento especifica os requisitos para a implementação em código do Sis
 2. THE Persistence_Adapter SHALL implement `JpaUserRepositoryAdapter` that implements `UserRepositoryPort` using Spring Data JPA
 3. THE Persistence_Adapter SHALL include JPA entity classes (`SubscriptionJpaEntity`, `UserJpaEntity`, `PaymentMethodJpaEntity`, `PaymentAttemptJpaEntity`) mapped to database tables, separate from domain entities
 4. THE Persistence_Adapter SHALL include mapper classes that convert between domain entities and JPA entities without exposing JPA annotations to the domain layer
-5. THE Persistence_Adapter SHALL configure Flyway migrations in `src/main/resources/db/migration` with numbered scripts creating all tables: users, subscriptions, subscription_status_history, payment_methods, payment_attempts, subscription_events
-6. WHEN Flyway migrations execute, THE Persistence_Adapter SHALL create the partial unique index `uq_active_subscription_per_user` on subscriptions(user_id) WHERE status IN ('ATIVA', 'PENDENTE_PAGAMENTO')
-7. WHEN Flyway migrations execute, THE Persistence_Adapter SHALL create the performance index `idx_subscriptions_due_renewal` on subscriptions(status, expiration_date)
-8. WHEN Flyway migrations execute, THE Persistence_Adapter SHALL create the unique constraint on payment_attempts.idempotency_key
+5. THE Persistence_Adapter SHALL configure Liquibase changelogs in `src/main/resources/db/changelog` with a master changelog file (`db.changelog-master.yaml`) referencing individual SQL changeset files for creating all tables: users, plans, subscriptions, subscription_status_history, payment_methods, payment_attempts, subscription_events
+6. WHEN Liquibase changelogs execute, THE Persistence_Adapter SHALL create the `plans` table and insert seed data for initial plans (BASICO R$19.90, PREMIUM R$39.90, FAMILIA R$59.90) via a dedicated SQL changeset
+7. WHEN Liquibase changelogs execute, THE Persistence_Adapter SHALL create the partial unique index `uq_active_subscription_per_user` on subscriptions(user_id) WHERE status IN ('ATIVA', 'PENDENTE_PAGAMENTO')
+8. WHEN Liquibase changelogs execute, THE Persistence_Adapter SHALL create the performance index `idx_subscriptions_due_renewal` on subscriptions(status, expiration_date)
+9. WHEN Liquibase changelogs execute, THE Persistence_Adapter SHALL create the unique constraint on payment_attempts.idempotency_key
 9. THE Persistence_Adapter SHALL configure the `subscriptions.version` column for JPA @Version optimistic locking
 10. THE Persistence_Adapter SHALL configure a local PostgreSQL connection in `application-local.yml` with sensible defaults (localhost:5432, database name, credentials)
 11. WHEN `findSubscriptionsDueForRenewal` is called, THE JpaSubscriptionRepositoryAdapter SHALL use a JPQL/native query with `FOR UPDATE SKIP LOCKED` to prevent row contention during batch processing
@@ -160,10 +163,12 @@ Este documento especifica os requisitos para a implementação em código do Sis
 #### Acceptance Criteria
 
 1. THE Cache_Adapter SHALL implement `CaffeineSubscriptionCacheAdapter` that implements `SubscriptionCachePort` using Caffeine cache library
-2. THE Cache_Adapter SHALL configure Caffeine with a TTL of 5 minutes (configurable via application properties) and a maximum size of 10,000 entries
+2. THE Cache_Adapter SHALL configure Caffeine with a TTL of 5 minutes (configurable via application properties) and a maximum size of 10,000 entries for subscription cache
 3. WHEN `getActiveSubscription` is called and a cache hit occurs, THE Cache_Adapter SHALL return the cached subscription without querying the database
 4. WHEN `evictActiveSubscription` is called, THE Cache_Adapter SHALL remove the entry for the given userId immediately
-5. THE Event_Publisher_Adapter SHALL implement `LocalEventPublisherAdapter` that implements `EventPublisherPort` by persisting domain events to the `subscription_events` table
+5. THE Cache_Adapter SHALL implement `CaffeinePlanCacheAdapter` that implements `PlanCachePort` using a dedicated Caffeine cache with TTL of 1 hour (configurable) and max 100 entries
+6. WHEN `getAllActivePlans` is called on PlanCachePort and a cache hit occurs, THE Cache_Adapter SHALL return the cached plan list without querying the database
+7. THE Event_Publisher_Adapter SHALL implement `LocalEventPublisherAdapter` that implements `EventPublisherPort` by persisting domain events to the `subscription_events` table
 6. WHEN a domain event is published, THE Event_Publisher_Adapter SHALL serialize the event payload to JSON and insert a row in `subscription_events` with `published_at` set to NULL (outbox pattern — ready for future async publisher)
 7. THE Event_Publisher_Adapter SHALL participate in the same transaction as the use case operation, ensuring atomicity between state change and event persistence
 8. FOR ALL events published through EventPublisherPort, the event SHALL be retrievable from the subscription_events table with matching subscription_id, event_type, and payload content (round-trip property: publish → query → verify content)
@@ -178,7 +183,7 @@ Este documento especifica os requisitos para a implementação em código do Sis
 2. THE Subscription_Service SHALL log at appropriate levels: DEBUG for cache hits/misses, INFO for use case execution start/end, WARN for payment failures and lock acquisition failures, ERROR for unhandled exceptions
 3. THE Subscription_Service SHALL expose Spring Boot Actuator endpoints: /actuator/health, /actuator/metrics, /actuator/info
 4. THE Subscription_Service SHALL include Micrometer metrics for: use case execution count and duration, payment attempt outcomes (approved/failed/timeout), cache hit/miss ratio, renewal batch execution count and duration
-5. THE Subscription_Service SHALL include integration tests using Testcontainers with PostgreSQL that verify: full lifecycle (create user → create subscription → renew → cancel), persistence round-trip for all entities, Flyway migration execution, partial unique index enforcement, optimistic locking conflict detection
+5. THE Subscription_Service SHALL include integration tests using Testcontainers with PostgreSQL that verify: full lifecycle (create user → create subscription → renew → cancel), persistence round-trip for all entities, Liquibase changelog execution, partial unique index enforcement, optimistic locking conflict detection
 6. THE Subscription_Service SHALL include unit tests for all domain entities verifying: state transitions, invariant enforcement, domain event generation, Money value object constraints
 7. THE Subscription_Service SHALL include unit tests for all use cases using mocked ports verifying: happy path, error paths, cache invalidation, event publication
 8. WHEN integration tests execute, THE Subscription_Service SHALL use `@SpringBootTest` with the `test` profile and Testcontainers PostgreSQL, requiring no external infrastructure to run; integration tests MAY be configured to not execute during every build but SHALL be runnable on demand

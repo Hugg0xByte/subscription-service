@@ -20,7 +20,7 @@ Este design detalha a implementação em código do Sistema de Gestão de Assina
 | 1 | Project scaffolding, build config, package structure | None |
 | 2 | Domain layer (entities, VOs, enums, events) | Phase 1 |
 | 3 | Application layer (use cases, ports) | Phase 2 |
-| 4 | Persistence adapter (JPA, Flyway, PostgreSQL) | Phase 3 |
+| 4 | Persistence adapter (JPA, Liquibase, PostgreSQL) | Phase 3 |
 | 5 | REST API adapter (controllers, DTOs, validation) | Phase 3 |
 | 6 | Payment adapter (mock gateway, resilience4j) | Phase 3 |
 | 7 | Scheduler, cache, event publisher | Phase 4, 6 |
@@ -36,12 +36,12 @@ src/main/java/com/globo/subscription/
 │   ├── entity/
 │   │   ├── User.java
 │   │   ├── Subscription.java
+│   │   ├── Plan.java
 │   │   ├── PaymentMethod.java
 │   │   └── PaymentAttempt.java
 │   ├── vo/
 │   │   └── Money.java
 │   ├── enums/
-│   │   ├── Plan.java
 │   │   ├── SubscriptionStatus.java
 │   │   └── PaymentAttemptStatus.java
 │   └── event/
@@ -56,8 +56,10 @@ src/main/java/com/globo/subscription/
 │   ├── port/
 │   │   ├── SubscriptionRepositoryPort.java
 │   │   ├── UserRepositoryPort.java
+│   │   ├── PlanRepositoryPort.java
 │   │   ├── PaymentGatewayPort.java
 │   │   ├── SubscriptionCachePort.java
+│   │   ├── PlanCachePort.java
 │   │   ├── EventPublisherPort.java
 │   │   └── LockManagerPort.java
 │   ├── usecase/
@@ -93,21 +95,26 @@ src/main/java/com/globo/subscription/
 │       │   ├── entity/
 │       │   │   ├── SubscriptionJpaEntity.java
 │       │   │   ├── UserJpaEntity.java
+│       │   │   ├── PlanJpaEntity.java
 │       │   │   ├── PaymentMethodJpaEntity.java
 │       │   │   ├── PaymentAttemptJpaEntity.java
 │       │   │   └── SubscriptionEventJpaEntity.java
 │       │   ├── repository/
 │       │   │   ├── SubscriptionJpaRepository.java (Spring Data)
-│       │   │   └── UserJpaRepository.java (Spring Data)
+│       │   │   ├── UserJpaRepository.java (Spring Data)
+│       │   │   └── PlanJpaRepository.java (Spring Data)
 │       │   ├── mapper/
 │       │   │   ├── SubscriptionPersistenceMapper.java
-│       │   │   └── UserPersistenceMapper.java
+│       │   │   ├── UserPersistenceMapper.java
+│       │   │   └── PlanPersistenceMapper.java
 │       │   ├── JpaSubscriptionRepositoryAdapter.java
-│       │   └── JpaUserRepositoryAdapter.java
+│       │   ├── JpaUserRepositoryAdapter.java
+│       │   └── JpaPlanRepositoryAdapter.java
 │       ├── payment/
 │       │   └── MockPaymentGatewayAdapter.java
 │       ├── cache/
-│       │   └── CaffeineSubscriptionCacheAdapter.java
+│       │   ├── CaffeineSubscriptionCacheAdapter.java
+│       │   └── CaffeinePlanCacheAdapter.java
 │       ├── event/
 │       │   └── LocalEventPublisherAdapter.java
 │       └── lock/
@@ -297,14 +304,36 @@ public interface LockManagerPort {
 }
 ```
 
+#### PlanRepositoryPort
+
+```java
+public interface PlanRepositoryPort {
+    Optional<Plan> findById(UUID id);
+    Optional<Plan> findByName(String name);
+    List<Plan> findAllActive();
+}
+```
+
+#### PlanCachePort
+
+```java
+public interface PlanCachePort {
+    Optional<List<Plan>> getAllActivePlans();
+    void putAllActivePlans(List<Plan> plans);
+    void evictAllPlans();
+}
+```
+
 ### Adapter Implementations
 
 | Port | Adapter | Technology |
 |------|---------|-----------|
 | SubscriptionRepositoryPort | JpaSubscriptionRepositoryAdapter | Spring Data JPA + PostgreSQL |
 | UserRepositoryPort | JpaUserRepositoryAdapter | Spring Data JPA + PostgreSQL |
+| PlanRepositoryPort | JpaPlanRepositoryAdapter | Spring Data JPA + PostgreSQL |
 | PaymentGatewayPort | MockPaymentGatewayAdapter | In-memory with configurable outcomes |
-| SubscriptionCachePort | CaffeineSubscriptionCacheAdapter | Caffeine (in-memory, local) |
+| SubscriptionCachePort | CaffeineSubscriptionCacheAdapter | Caffeine (in-memory, TTL 5min) |
+| PlanCachePort | CaffeinePlanCacheAdapter | Caffeine (in-memory, TTL 1h) |
 | EventPublisherPort | LocalEventPublisherAdapter | JPA insert to subscription_events table |
 | LockManagerPort | InMemoryLockManagerAdapter | ReentrantLock (single-instance local) |
 
@@ -339,7 +368,8 @@ public class User {
 public class Subscription {
     private UUID id;
     private UUID userId;
-    private Plan plan;
+    private UUID planId;
+    private Money priceAtPurchase;        // snapshot do preço no momento da contratação
     private SubscriptionStatus status;
     private LocalDate startDate;
     private LocalDate expirationDate;
@@ -397,20 +427,20 @@ public record Money(BigDecimal amount, String currency) {
 
 ### Enums
 
-#### Plan
+#### Plan (Entity — persisted in database)
 
 ```java
-public enum Plan {
-    BASICO(new Money(new BigDecimal("19.90"), "BRL")),
-    PREMIUM(new Money(new BigDecimal("39.90"), "BRL")),
-    FAMILIA(new Money(new BigDecimal("59.90"), "BRL"));
-
-    private final Money monthlyPrice;
-
-    Plan(Money monthlyPrice) { this.monthlyPrice = monthlyPrice; }
-    public Money getMonthlyPrice() { return monthlyPrice; }
+public class Plan {
+    private UUID id;
+    private String name;           // e.g., "BASICO", "PREMIUM", "FAMILIA"
+    private String displayName;    // e.g., "Básico", "Premium", "Família"
+    private Money monthlyPrice;
+    private boolean active;
+    private Instant createdAt;
 }
 ```
+
+Plans are stored in the database and cached with a 1-hour TTL. Initial plans are seeded via Liquibase SQL changeset. No CRUD API — management via SQL scripts.
 
 #### SubscriptionStatus
 
@@ -441,7 +471,7 @@ public sealed interface DomainEvent permits
 }
 
 public record SubscriptionCreated(
-    UUID subscriptionId, UUID userId, Plan plan,
+    UUID subscriptionId, UUID userId, UUID planId, Money priceAtPurchase,
     LocalDate startDate, LocalDate expirationDate, Instant occurredAt
 ) implements DomainEvent {
     public String eventType() { return "SUBSCRIPTION_CREATED"; }
@@ -463,9 +493,14 @@ public class SubscriptionJpaEntity {
     @Column(name = "user_id", nullable = false)
     private UUID userId;
     
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Plan plan;
+    @Column(name = "plan_id", nullable = false)
+    private UUID planId;
+    
+    @Column(name = "price_at_purchase", nullable = false)
+    private BigDecimal priceAtPurchase;
+    
+    @Column(name = "currency_at_purchase", nullable = false)
+    private String currencyAtPurchase;
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -498,11 +533,16 @@ public class SubscriptionJpaEntity {
 }
 ```
 
-### Database Schema (Flyway Migrations)
+### Database Schema (Liquibase Changelogs)
 
-#### V1__create_users_table.sql
+Os changelogs SQL ficam em `src/main/resources/db/changelog/changes/` e são referenciados pelo master changelog (`db.changelog-master.yaml`).
+
+#### 001-create-users-table.sql
 
 ```sql
+--liquibase formatted sql
+
+--changeset subscription-service:1
 CREATE TABLE users (
     id UUID PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -513,13 +553,35 @@ CREATE TABLE users (
 );
 ```
 
-#### V2__create_subscriptions_table.sql
+#### 002-create-subscriptions-table.sql
 
 ```sql
+--liquibase formatted sql
+
+--changeset subscription-service:2
+CREATE TABLE plans (
+    id UUID PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    display_name VARCHAR(100) NOT NULL,
+    monthly_price NUMERIC(10,2) NOT NULL,
+    currency VARCHAR(3) NOT NULL DEFAULT 'BRL',
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+--changeset subscription-service:3
+INSERT INTO plans (id, name, display_name, monthly_price, currency, active, created_at) VALUES
+    (gen_random_uuid(), 'BASICO', 'Básico', 19.90, 'BRL', true, now()),
+    (gen_random_uuid(), 'PREMIUM', 'Premium', 39.90, 'BRL', true, now()),
+    (gen_random_uuid(), 'FAMILIA', 'Família', 59.90, 'BRL', true, now());
+
+--changeset subscription-service:4
 CREATE TABLE subscriptions (
     id UUID PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(id),
-    plan VARCHAR(50) NOT NULL,
+    plan_id UUID NOT NULL REFERENCES plans(id),
+    price_at_purchase NUMERIC(10,2) NOT NULL,
+    currency_at_purchase VARCHAR(3) NOT NULL DEFAULT 'BRL',
     status VARCHAR(50) NOT NULL,
     start_date DATE NOT NULL,
     expiration_date DATE NOT NULL,
@@ -531,17 +593,22 @@ CREATE TABLE subscriptions (
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
+--changeset subscription-service:5
 CREATE UNIQUE INDEX uq_active_subscription_per_user
     ON subscriptions(user_id)
     WHERE status IN ('ATIVA', 'PENDENTE_PAGAMENTO');
 
+--changeset subscription-service:6
 CREATE INDEX idx_subscriptions_due_renewal
     ON subscriptions(status, expiration_date);
 ```
 
-#### V3__create_subscription_status_history_table.sql
+#### 003-create-subscription-status-history-table.sql
 
 ```sql
+--liquibase formatted sql
+
+--changeset subscription-service:7
 CREATE TABLE subscription_status_history (
     id UUID PRIMARY KEY,
     subscription_id UUID NOT NULL REFERENCES subscriptions(id),
@@ -552,13 +619,17 @@ CREATE TABLE subscription_status_history (
     changed_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
+--changeset subscription-service:8
 CREATE INDEX idx_status_history_subscription
     ON subscription_status_history(subscription_id, changed_at);
 ```
 
-#### V4__create_payment_tables.sql
+#### 004-create-payment-tables.sql
 
 ```sql
+--liquibase formatted sql
+
+--changeset subscription-service:9
 CREATE TABLE payment_methods (
     id UUID PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(id),
@@ -569,6 +640,7 @@ CREATE TABLE payment_methods (
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
+--changeset subscription-service:10
 CREATE TABLE payment_attempts (
     id UUID PRIMARY KEY,
     subscription_id UUID NOT NULL REFERENCES subscriptions(id),
@@ -585,9 +657,12 @@ CREATE TABLE payment_attempts (
 );
 ```
 
-#### V5__create_subscription_events_table.sql
+#### 005-create-subscription-events-table.sql
 
 ```sql
+--liquibase formatted sql
+
+--changeset subscription-service:11
 CREATE TABLE subscription_events (
     id UUID PRIMARY KEY,
     subscription_id UUID NOT NULL REFERENCES subscriptions(id),
@@ -597,6 +672,7 @@ CREATE TABLE subscription_events (
     published_at TIMESTAMP WITH TIME ZONE
 );
 
+--changeset subscription-service:12
 CREATE INDEX idx_events_unpublished
     ON subscription_events(published_at)
     WHERE published_at IS NULL;
@@ -609,7 +685,7 @@ CREATE INDEX idx_events_unpublished
 ```java
 public record CreateSubscriptionRequest(
     @NotNull UUID userId,
-    @NotNull Plan plan
+    @NotNull UUID planId
 ) {}
 
 public record CreateUserRequest(
@@ -624,7 +700,9 @@ public record CreateUserRequest(
 public record SubscriptionResponse(
     UUID id,
     UUID userId,
-    String plan,
+    String planName,
+    BigDecimal priceAtPurchase,
+    String currency,
     String status,
     LocalDate startDate,
     LocalDate expirationDate,
@@ -709,7 +787,7 @@ public record ErrorResponse(
 
 ### Property 10: REST mapper field preservation
 
-*For any* valid Subscription domain entity, mapping it to a SubscriptionResponse DTO SHALL preserve all exposed fields (id, userId, plan name, status name, startDate, expirationDate, createdAt) with exact value equality.
+*For any* valid Subscription domain entity, mapping it to a SubscriptionResponse DTO SHALL preserve all exposed fields (id, userId, planName, priceAtPurchase, currency, status name, startDate, expirationDate, createdAt) with exact value equality.
 
 **Validates: Requirements 5.10**
 
@@ -871,7 +949,7 @@ public class UserNotFoundException extends DomainException {
 - `SubscriptionTest` — specific state transitions with known inputs
 - `UserTest` — creation, validation
 - `MoneyTest` — specific edge cases (zero, exact boundary)
-- `PlanTest` — each enum returns correct price
+- `PlanTest` — entity creation, validation, monthlyPrice consistency
 
 **Adapter tests**:
 - `GlobalExceptionHandlerTest` — each exception type mapped to correct HTTP status
@@ -885,7 +963,7 @@ public class UserNotFoundException extends DomainException {
 1. Full lifecycle: create user → create subscription → renew (success) → cancel
 2. Payment failure lifecycle: create → renew (fail x3) → suspension
 3. Persistence round-trip: save all entity types, retrieve, verify equality
-4. Flyway migrations: verify schema created correctly
+4. Liquibase changelogs: verify schema created correctly
 5. Partial unique index: attempt duplicate active subscription → constraint violation
 6. Optimistic locking: concurrent updates on same subscription → one succeeds, one fails
 7. FOR UPDATE SKIP LOCKED: concurrent batch queries skip locked rows

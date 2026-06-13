@@ -2,19 +2,19 @@
 
 ## Overview
 
-Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spring Boot, seguindo arquitetura hexagonal. Cada fase produz código compilável e testável independentemente. A implementação é local-first: PostgreSQL local via Docker, Caffeine cache in-memory, mock payment gateway.
+Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spring Boot, seguindo arquitetura hexa`gonal. Cada fase produz código compilável e testável independentemente. A implementação é local-first: PostgreSQL local via Docker, Caffeine cache in-memory, mock payment gateway.
 
 ## Tasks
 
 - [ ] 1. Project Scaffolding e Estrutura Base
-  - [ ] 1.1 Create Maven project structure with Spring Boot parent and dependency management
+  - [x] 1.1 Create Maven project structure with Spring Boot parent and dependency management
     - Initialize Spring Boot project with Java 25 source/target
-    - Configure `pom.xml` with Spring Boot parent (latest stable), dependency management for: spring-boot-starter-web, spring-boot-starter-data-jpa, spring-boot-starter-validation, postgresql driver, flyway-core, caffeine, resilience4j-spring-boot3, spring-boot-starter-test, jqwik, testcontainers-postgresql, archunit
+    - Configure `pom.xml` with Spring Boot parent (latest stable), dependency management for: spring-boot-starter-web, spring-boot-starter-data-jpa, spring-boot-starter-validation, postgresql driver, liquibase-core, caffeine, resilience4j-spring-boot3, spring-boot-starter-test, jqwik, testcontainers-postgresql, archunit
     - Include Maven profiles: `default` (unit+property tests), `integration-tests`, `all-tests`
     - Configure JaCoCo plugin for coverage reporting
     - _Requirements: 1.1, 1.2, 1.6_
 
-  - [ ] 1.2 Create package structure and application entry point
+  - [x] 1.2 Create package structure and application entry point
     - Create top-level packages: `com.globo.subscription.domain`, `com.globo.subscription.application`, `com.globo.subscription.adapter`
     - Create `SubscriptionServiceApplication.java` main class with `@SpringBootApplication`
     - Create `application.yml` with profiles `local` (default) and `test`
@@ -28,9 +28,10 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - _Requirements: 4.10, 4.12_
 
 - [ ] 2. Domain Layer — Entities, Value Objects, Enums e Events
-  - [ ] 2.1 Implement Money value object and Plan enum
+  - [ ] 2.1 Implement Money value object and Plan entity
     - Create `Money.java` as Java record with non-negative validation in compact constructor
-    - Create `Plan.java` enum with BASICO (R$19.90), PREMIUM (R$39.90), FAMILIA (R$59.90) returning Money instances
+    - Create `Plan.java` as domain entity with fields: id (UUID), name (String), displayName (String), monthlyPrice (Money), active (boolean), createdAt (Instant)
+    - Plan is persisted in the database and cached (not an enum)
     - _Requirements: 2.5, 2.6_
 
   - [ ]* 2.2 Write property test for Money non-negativity invariant
@@ -55,7 +56,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - _Requirements: 2.1_
 
   - [ ] 2.6 Implement Subscription entity with business methods
-    - Create `Subscription.java` with all fields as specified in design
+    - Create `Subscription.java` with all fields as specified in design (planId UUID, priceAtPurchase Money instead of Plan enum)
     - Implement `processSuccessfulPayment()`: advance expirationDate +1 month, reset failedAttempts to 0, set status ATIVA, register PaymentApproved/SubscriptionRenewed event
     - Implement `processFailedPayment()`: increment failedAttempts, if reaches 3 set SUSPENSA + suspendedAt, else set PENDENTE_PAGAMENTO, register corresponding event
     - Implement `requestCancellation()`: set cancelRequestedAt without changing status, register SubscriptionCanceled event
@@ -99,9 +100,11 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `UserRepositoryPort.java` with methods: save, findById, findByEmail
     - Create `PaymentGatewayPort.java` with processPayment returning PaymentResult (sealed interface)
     - Create `SubscriptionCachePort.java` with methods: getActiveSubscription, putActiveSubscription, evictActiveSubscription
+    - Create `PlanRepositoryPort.java` with methods: findById, findByName, findAllActive
+    - Create `PlanCachePort.java` with methods: getAllActivePlans, putAllActivePlans, evictAllPlans
     - Create `EventPublisherPort.java` with publish(DomainEvent) method
     - Create `LockManagerPort.java` with methods: acquireLock, releaseLock
-    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8_
 
   - [ ] 4.2 Implement domain-specific exceptions
     - Create `DomainException.java` abstract base class with errorCode field
@@ -122,8 +125,10 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
   - [ ] 4.4 Implement CreateSubscriptionUseCase
     - Check existsActiveForUser via SubscriptionRepositoryPort
     - If active subscription exists, throw ActiveSubscriptionExistsException
-    - Create new Subscription with status ATIVA, persist, evict cache, publish SubscriptionCreated event
-    - _Requirements: 3.7, 3.12_
+    - Retrieve Plan via PlanCachePort (on cache miss, query PlanRepositoryPort and populate cache)
+    - Create new Subscription with status ATIVA, planId, and priceAtPurchase snapshot from Plan's monthlyPrice
+    - Persist, evict subscription cache, publish SubscriptionCreated event
+    - _Requirements: 3.9, 3.14_
 
   - [ ] 4.5 Implement RenewExpiredSubscriptionsUseCase
     - Acquire lock via LockManagerPort, abort if not acquired
@@ -156,28 +161,31 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 6. Persistence Adapter — JPA e PostgreSQL
-  - [ ] 6.1 Create Flyway migration scripts
-    - Create `V1__create_users_table.sql`
-    - Create `V2__create_subscriptions_table.sql` with partial unique index and performance index
-    - Create `V3__create_subscription_status_history_table.sql`
-    - Create `V4__create_payment_tables.sql` with idempotency_key unique constraint
-    - Create `V5__create_subscription_events_table.sql` with unpublished index
-    - Place in `src/main/resources/db/migration/`
-    - _Requirements: 4.5, 4.6, 4.7, 4.8_
+  - [ ] 6.1 Create Liquibase changelog scripts
+    - Create `db.changelog-master.yaml` master changelog in `src/main/resources/db/changelog/`
+    - Create `001-create-users-table.sql` in SQL format with `--liquibase formatted sql` header
+    - Create `002-create-plans-and-subscriptions-tables.sql` with plans table, seed data (BASICO R$19.90, PREMIUM R$39.90, FAMILIA R$59.90), subscriptions table with plan_id FK, price_at_purchase, partial unique index and performance index
+    - Create `003-create-subscription-status-history-table.sql`
+    - Create `004-create-payment-tables.sql` with idempotency_key unique constraint
+    - Create `005-create-subscription-events-table.sql` with unpublished index
+    - Place SQL changelogs in `src/main/resources/db/changelog/changes/`
+    - _Requirements: 4.5, 4.6, 4.7, 4.8, 4.9_
 
   - [ ] 6.2 Create JPA entity classes with mappers
-    - Create `SubscriptionJpaEntity.java` with @Entity, @Table, @Version annotations
-    - Create `UserJpaEntity.java`, `PaymentMethodJpaEntity.java`, `PaymentAttemptJpaEntity.java`, `SubscriptionEventJpaEntity.java`
+    - Create `SubscriptionJpaEntity.java` with @Entity, @Table, @Version annotations (planId UUID, priceAtPurchase, currencyAtPurchase)
+    - Create `UserJpaEntity.java`, `PlanJpaEntity.java`, `PaymentMethodJpaEntity.java`, `PaymentAttemptJpaEntity.java`, `SubscriptionEventJpaEntity.java`
     - Create `SubscriptionPersistenceMapper.java` (domain ↔ JPA entity conversion)
-    - Create `UserPersistenceMapper.java`
+    - Create `UserPersistenceMapper.java`, `PlanPersistenceMapper.java`
     - Ensure JPA annotations do NOT leak to domain layer
     - _Requirements: 4.3, 4.4, 4.9_
 
   - [ ] 6.3 Implement JPA repository adapters
     - Create `SubscriptionJpaRepository.java` (Spring Data interface)
     - Create `UserJpaRepository.java` (Spring Data interface)
+    - Create `PlanJpaRepository.java` (Spring Data interface)
     - Create `JpaSubscriptionRepositoryAdapter.java` implementing SubscriptionRepositoryPort
     - Create `JpaUserRepositoryAdapter.java` implementing UserRepositoryPort
+    - Create `JpaPlanRepositoryAdapter.java` implementing PlanRepositoryPort
     - Implement `findSubscriptionsDueForRenewal` with `FOR UPDATE SKIP LOCKED` query
     - _Requirements: 4.1, 4.2, 4.11_
 
@@ -195,9 +203,9 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
 
 - [ ] 7. REST API Adapter — Controllers e DTOs
   - [ ] 7.1 Create request/response DTOs with validation
-    - Create `CreateSubscriptionRequest.java` record with @NotNull annotations
+    - Create `CreateSubscriptionRequest.java` record with @NotNull annotations (userId UUID, planId UUID)
     - Create `CreateUserRequest.java` record with @NotBlank, @Email annotations
-    - Create `SubscriptionResponse.java` record (no version or internal IDs exposed)
+    - Create `SubscriptionResponse.java` record (no version or internal IDs of related entities exposed, includes plan name and price)
     - Create `UserResponse.java` record
     - Create `ErrorResponse.java` record
     - _Requirements: 5.3, 5.4_
@@ -251,17 +259,21 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 10. Scheduler, Cache e Event Publisher
-  - [ ] 10.1 Implement CaffeineSubscriptionCacheAdapter
+  - [ ] 10.1 Implement CaffeineSubscriptionCacheAdapter and CaffeinePlanCacheAdapter
     - Create `CaffeineSubscriptionCacheAdapter.java` implementing SubscriptionCachePort
-    - Configure Caffeine with TTL 5 minutes (configurable) and max 10,000 entries
+    - Configure Caffeine with TTL 5 minutes (configurable) and max 10,000 entries for subscriptions
     - Implement getActiveSubscription (cache hit returns without DB query), putActiveSubscription, evictActiveSubscription
-    - _Requirements: 8.1, 8.2, 8.3, 8.4_
+    - Create `CaffeinePlanCacheAdapter.java` implementing PlanCachePort
+    - Configure dedicated Caffeine cache with TTL 1 hour (configurable) and max 100 entries for plans
+    - Implement getAllActivePlans, putAllActivePlans, evictAllPlans
+    - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
 
   - [ ]* 10.2 Write property test for cache put-get-evict round-trip
     - **Property 12: Cache put-get-evict round-trip**
-    - **Validates: Requirements 8.3, 8.4**
+    - **Validates: Requirements 8.3, 8.4, 8.5, 8.6**
     - Create `CacheRoundTripPropertyTest.java` using jqwik
-    - Verify put→get returns subscription, evict→get returns empty
+    - Verify subscription cache: put→get returns subscription, evict→get returns empty
+    - Verify plan cache: putAll→getAll returns plans, evict→getAll returns empty
 
   - [ ] 10.3 Implement LocalEventPublisherAdapter (outbox pattern)
     - Create `LocalEventPublisherAdapter.java` implementing EventPublisherPort
@@ -305,7 +317,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Test full lifecycle: create user → create subscription → renew (success) → cancel
     - Test payment failure lifecycle: create → renew (fail x3) → suspension
     - Test persistence round-trip for all entities
-    - Test Flyway migration execution
+    - Test Liquibase changelog execution
     - Test partial unique index enforcement (duplicate active subscription)
     - Test optimistic locking conflict detection
     - Configure integration tests to run on-demand (not every build) via Maven profile
@@ -315,7 +327,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `SubscriptionTest.java` — specific state transitions with known inputs
     - Create `UserTest.java` — creation, validation
     - Create `MoneyTest.java` — edge cases (zero, boundary)
-    - Create `PlanTest.java` — each enum returns correct price
+    - Create `PlanTest.java` — entity creation, validation, monthlyPrice consistency
     - _Requirements: 9.6_
 
   - [ ] 12.4 Write ArchUnit architecture tests
@@ -342,7 +354,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
 - Unit tests validate specific examples and edge cases
 - Integration tests with Testcontainers verify cross-layer correctness
 - The phased approach ensures each phase is independently compilable and testable
-- Tech stack: Java 25, Spring Boot (latest stable), Maven, PostgreSQL 16, Flyway, Caffeine, Resilience4j, jqwik, Testcontainers, ArchUnit
+- Tech stack: Java 25, Spring Boot (latest stable), Maven, PostgreSQL 16, Liquibase, Caffeine, Resilience4j, jqwik, Testcontainers, ArchUnit
 
 ## Task Dependency Graph
 
