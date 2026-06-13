@@ -21,10 +21,10 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Verify the application context loads successfully with `./mvnw spring-boot:run`
     - _Requirements: 1.3, 1.7, 1.8_
 
-  - [ ] 1.3 Create docker-compose.yml for local PostgreSQL
-    - Configure PostgreSQL 16 container with default credentials
+  - [x] 1.3 Create docker-compose.yml for local PostgreSQL
+    - Configure PostgreSQL 16 container with credentials: user `huggooliveira`, password `Mv123456`, database `subscription_db`
     - Configure port mapping (localhost:5432)
-    - Create `application-local.yml` with PostgreSQL connection settings
+    - Update `application-local.yml` with PostgreSQL connection settings matching the Docker credentials
     - _Requirements: 4.10, 4.12_
 
 - [ ] 2. Domain Layer — Entities, Value Objects, Enums e Events
