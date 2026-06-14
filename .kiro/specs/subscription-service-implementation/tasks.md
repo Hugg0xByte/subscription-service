@@ -122,7 +122,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Annotate with @Service and @Transactional
     - _Requirements: 3.11_
 
-  - [ ] 4.4 Implement CreateSubscriptionUseCase
+  - [x] 4.4 Implement CreateSubscriptionUseCase
     - Check existsActiveForUser via SubscriptionRepositoryPort
     - If active subscription exists, throw ActiveSubscriptionExistsException
     - Retrieve Plan via PlanCachePort (on cache miss, query PlanRepositoryPort and populate cache)
