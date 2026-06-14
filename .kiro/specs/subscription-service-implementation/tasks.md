@@ -210,7 +210,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `ErrorResponse.java` record
     - _Requirements: 5.3, 5.4_
 
-  - [ ] 7.2 Implement REST mappers (MapStruct)
+  - [x] 7.2 Implement REST mappers (MapStruct)
     - Create `SubscriptionRestMapper.java` as MapStruct `@Mapper(componentModel = "spring")` interface (domain entity → SubscriptionResponse DTO)
     - Create `UserRestMapper.java` as MapStruct `@Mapper(componentModel = "spring")` interface (domain entity → UserResponse DTO)
     - Use `@Mapping(expression=...)` for Money → BigDecimal/String and status enum → String conversions where needed
