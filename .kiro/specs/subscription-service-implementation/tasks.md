@@ -161,7 +161,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 6. Persistence Adapter — JPA e PostgreSQL
-  - [ ] 6.1 Create Liquibase changelog scripts
+  - [x] 6.1 Create Liquibase changelog scripts
     - Create `db.changelog-master.yaml` master changelog in `src/main/resources/db/changelog/`
     - Create `001-create-users-table.sql` in SQL format with `--liquibase formatted sql` header
     - Create `002-create-plans-and-subscriptions-tables.sql` with plans table, seed data (BASICO R$19.90, PREMIUM R$39.90, FAMILIA R$59.90), subscriptions table with plan_id FK, price_at_purchase, partial unique index and performance index
