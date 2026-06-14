@@ -40,7 +40,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `MoneyPropertyTest.java` using jqwik with @ForAll BigDecimal generation
     - Verify negative amounts throw IllegalArgumentException, non-negative amounts succeed and preserve value
 
-  - [ ] 2.3 Implement SubscriptionStatus, PaymentAttemptStatus enums
+  - [x] 2.3 Implement SubscriptionStatus, PaymentAttemptStatus enums
     - Create `SubscriptionStatus.java` enum with values: ATIVA, PENDENTE_PAGAMENTO, SUSPENSA, EXPIRADA, CANCELADA
     - Create `PaymentAttemptStatus.java` enum with values: PROCESSING, APPROVED, FAILED, TIMEOUT
     - _Requirements: 2.7, 2.8_
