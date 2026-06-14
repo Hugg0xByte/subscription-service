@@ -65,7 +65,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Enforce invariant: status CANCELADA rejects all state-changing operations
     - _Requirements: 2.2, 2.9, 2.10, 2.11, 2.12, 2.14, 2.15_
 
-  - [ ]* 2.7 Write property tests for Subscription state transitions
+  - [x] 2.7 Write property tests for Subscription state transitions
     - **Property 2: Subscription state transition enforcement**
     - **Validates: Requirements 2.9, 2.15**
     - Create `SubscriptionStatePropertyTest.java` using jqwik
