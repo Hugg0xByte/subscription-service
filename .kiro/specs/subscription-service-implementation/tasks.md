@@ -106,7 +106,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `LockManagerPort.java` with methods: acquireLock, releaseLock
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8_
 
-  - [ ] 4.2 Implement domain-specific exceptions
+  - [x] 4.2 Implement domain-specific exceptions
     - Create `DomainException.java` abstract base class with errorCode field
     - Create `ActiveSubscriptionExistsException.java`
     - Create `EmailAlreadyExistsException.java`
