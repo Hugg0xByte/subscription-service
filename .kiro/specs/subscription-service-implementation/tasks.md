@@ -28,7 +28,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - _Requirements: 4.10, 4.12_
 
 - [ ] 2. Domain Layer — Entities, Value Objects, Enums e Events
-  - [ ] 2.1 Implement Money value object and Plan entity
+  - [x] 2.1 Implement Money value object and Plan entity
     - Create `Money.java` as Java record with non-negative validation in compact constructor
     - Create `Plan.java` as domain entity with fields: id (UUID), name (String), displayName (String), monthlyPrice (Money), active (boolean), createdAt (Instant)
     - Plan is persisted in the database and cached (not an enum)
