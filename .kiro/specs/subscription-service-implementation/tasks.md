@@ -50,7 +50,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create record implementations: SubscriptionCreated, SubscriptionRenewed, SubscriptionCanceled, SubscriptionSuspended, PaymentFailed, PaymentApproved
     - _Requirements: 2.13_
 
-  - [ ] 2.5 Implement User entity
+  - [x] 2.5 Implement User entity
     - Create `User.java` with fields: id (UUID), name (String), email (String), active (boolean), createdAt (Instant), updatedAt (Instant)
     - Implement constructor validation for required fields
     - _Requirements: 2.1_
