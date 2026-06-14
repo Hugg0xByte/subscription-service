@@ -171,7 +171,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Place SQL changelogs in `src/main/resources/db/changelog/changes/`
     - _Requirements: 4.5, 4.6, 4.7, 4.8, 4.9_
 
-  - [ ] 6.2 Create JPA entity classes with mappers
+  - [x] 6.2 Create JPA entity classes with mappers
     - Create `SubscriptionJpaEntity.java` with @Entity, @Table, @Version annotations (planId UUID, priceAtPurchase, currencyAtPurchase)
     - Create `UserJpaEntity.java`, `PlanJpaEntity.java`, `PaymentMethodJpaEntity.java`, `PaymentAttemptJpaEntity.java`, `SubscriptionEventJpaEntity.java`
     - Create `SubscriptionPersistenceMapper.java` (domain ↔ JPA entity conversion)
