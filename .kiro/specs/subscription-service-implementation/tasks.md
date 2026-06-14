@@ -201,7 +201,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `PersistenceRoundTripPropertyTest.java` using jqwik + Testcontainers
     - Persist entities, retrieve by ID, verify field equality
 
-- [ ] 7. REST API Adapter — Controllers e DTOs
+- [x] 7. REST API Adapter — Controllers e DTOs
   - [x] 7.1 Create request/response DTOs with validation
     - Create `CreateSubscriptionRequest.java` record with @NotNull annotations (userId UUID, planId UUID)
     - Create `CreateUserRequest.java` record with @NotBlank, @Email annotations
@@ -217,7 +217,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Use `default` methods for mappings that require constructor-based domain objects
     - _Requirements: 5.10_
 
-  - [ ] 7.3 Implement controllers and global exception handler
+  - [x] 7.3 Implement controllers and global exception handler
     - Create `SubscriptionController.java` with endpoints: POST /api/v1/subscriptions, GET /api/v1/subscriptions/active, DELETE /api/v1/subscriptions/{id}/cancel
     - Create `UserController.java` with endpoint: POST /api/v1/users
     - Create `GlobalExceptionHandler.java` @RestControllerAdvice mapping all exceptions to correct HTTP status codes
