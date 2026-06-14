@@ -160,8 +160,8 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
 - [ ] 5. Checkpoint — Application Layer
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 6. Persistence Adapter — JPA e PostgreSQL
-  - [ ] 6.1 Create Liquibase changelog scripts
+- [x] 6. Persistence Adapter — JPA e PostgreSQL
+  - [x] 6.1 Create Liquibase changelog scripts
     - Create `db.changelog-master.yaml` master changelog in `src/main/resources/db/changelog/`
     - Create `001-create-users-table.sql` in SQL format with `--liquibase formatted sql` header
     - Create `002-create-plans-and-subscriptions-tables.sql` with plans table, seed data (BASICO R$19.90, PREMIUM R$39.90, FAMILIA R$59.90), subscriptions table with plan_id FK, price_at_purchase, partial unique index and performance index
@@ -171,15 +171,15 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Place SQL changelogs in `src/main/resources/db/changelog/changes/`
     - _Requirements: 4.5, 4.6, 4.7, 4.8, 4.9_
 
-  - [ ] 6.2 Create JPA entity classes with mappers
+  - [x] 6.2 Create JPA entity classes with mappers (MapStruct)
     - Create `SubscriptionJpaEntity.java` with @Entity, @Table, @Version annotations (planId UUID, priceAtPurchase, currencyAtPurchase)
     - Create `UserJpaEntity.java`, `PlanJpaEntity.java`, `PaymentMethodJpaEntity.java`, `PaymentAttemptJpaEntity.java`, `SubscriptionEventJpaEntity.java`
-    - Create `SubscriptionPersistenceMapper.java` (domain ↔ JPA entity conversion)
-    - Create `UserPersistenceMapper.java`, `PlanPersistenceMapper.java`
+    - Create `SubscriptionPersistenceMapper.java`, `UserPersistenceMapper.java`, `PlanPersistenceMapper.java` as MapStruct `@Mapper(componentModel = "spring")` interfaces
+    - Money value object decomposition handled via `@Mapping(expression=...)` (toJpaEntity) and `default` methods (toDomainEntity)
     - Ensure JPA annotations do NOT leak to domain layer
     - _Requirements: 4.3, 4.4, 4.9_
 
-  - [ ] 6.3 Implement JPA repository adapters
+  - [x] 6.3 Implement JPA repository adapters
     - Create `SubscriptionJpaRepository.java` (Spring Data interface)
     - Create `UserJpaRepository.java` (Spring Data interface)
     - Create `PlanJpaRepository.java` (Spring Data interface)
@@ -189,13 +189,13 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Implement `findSubscriptionsDueForRenewal` with `FOR UPDATE SKIP LOCKED` query
     - _Requirements: 4.1, 4.2, 4.11_
 
-  - [ ]* 6.4 Write property test for Subscription serialization round-trip
+  - [x] 6.4 Write property test for Subscription serialization round-trip
     - **Property 6: Subscription serialization round-trip**
     - **Validates: Requirements 2.16**
     - Create `SubscriptionSerializationPropertyTest.java` using jqwik
     - Generate arbitrary Subscription states, verify domain→JPA→domain preserves all fields
 
-  - [ ]* 6.5 Write property test for persistence adapter round-trip
+  - [x] 6.5 Write property test for persistence adapter round-trip
     - **Property 7: Persistence adapter round-trip**
     - **Validates: Requirements 4.13**
     - Create `PersistenceRoundTripPropertyTest.java` using jqwik + Testcontainers
@@ -210,9 +210,11 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `ErrorResponse.java` record
     - _Requirements: 5.3, 5.4_
 
-  - [ ] 7.2 Implement REST mappers
-    - Create `SubscriptionRestMapper.java` (domain entity → response DTO, request → use case input)
-    - Create `UserRestMapper.java`
+  - [ ] 7.2 Implement REST mappers (MapStruct)
+    - Create `SubscriptionRestMapper.java` as MapStruct `@Mapper(componentModel = "spring")` interface (domain entity → SubscriptionResponse DTO)
+    - Create `UserRestMapper.java` as MapStruct `@Mapper(componentModel = "spring")` interface (domain entity → UserResponse DTO)
+    - Use `@Mapping(expression=...)` for Money → BigDecimal/String and status enum → String conversions where needed
+    - Use `default` methods for mappings that require constructor-based domain objects
     - _Requirements: 5.10_
 
   - [ ] 7.3 Implement controllers and global exception handler
