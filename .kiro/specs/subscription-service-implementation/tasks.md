@@ -34,7 +34,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Plan is persisted in the database and cached (not an enum)
     - _Requirements: 2.5, 2.6_
 
-  - [ ]* 2.2 Write property test for Money non-negativity invariant
+  - [x] 2.2 Write property test for Money non-negativity invariant
     - **Property 1: Money value object non-negativity invariant**
     - **Validates: Requirements 2.5**
     - Create `MoneyPropertyTest.java` using jqwik with @ForAll BigDecimal generation
