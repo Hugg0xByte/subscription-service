@@ -195,7 +195,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `SubscriptionSerializationPropertyTest.java` using jqwik
     - Generate arbitrary Subscription states, verify domain→JPA→domain preserves all fields
 
-  - [ ]* 6.5 Write property test for persistence adapter round-trip
+  - [x] 6.5 Write property test for persistence adapter round-trip
     - **Property 7: Persistence adapter round-trip**
     - **Validates: Requirements 4.13**
     - Create `PersistenceRoundTripPropertyTest.java` using jqwik + Testcontainers
