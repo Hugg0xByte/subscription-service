@@ -115,7 +115,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `UserNotFoundException.java`
     - _Requirements: 3.12, 3.13_
 
-  - [ ] 4.3 Implement CreateUserUseCase
+  - [x] 4.3 Implement CreateUserUseCase
     - Validate email uniqueness via UserRepositoryPort.findByEmail
     - If email exists, throw EmailAlreadyExistsException
     - Create User entity and persist via UserRepositoryPort.save
