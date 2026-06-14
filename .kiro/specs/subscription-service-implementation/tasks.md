@@ -81,7 +81,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - **Validates: Requirements 2.11, 2.14**
     - Verify failedAttempts increments, suspension at 3 failures, correct events registered
 
-  - [ ]* 2.10 Write property test for cancellation request preserving status
+  - [x] 2.10 Write property test for cancellation request preserving status
     - **Property 5: Cancellation request preserves status**
     - **Validates: Requirements 2.12**
     - Verify cancelRequestedAt is set but status remains unchanged
