@@ -160,7 +160,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
 - [ ] 5. Checkpoint — Application Layer
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 6. Persistence Adapter — JPA e PostgreSQL
+- [x] 6. Persistence Adapter — JPA e PostgreSQL
   - [x] 6.1 Create Liquibase changelog scripts
     - Create `db.changelog-master.yaml` master changelog in `src/main/resources/db/changelog/`
     - Create `001-create-users-table.sql` in SQL format with `--liquibase formatted sql` header
@@ -179,7 +179,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Ensure JPA annotations do NOT leak to domain layer
     - _Requirements: 4.3, 4.4, 4.9_
 
-  - [ ] 6.3 Implement JPA repository adapters
+  - [x] 6.3 Implement JPA repository adapters
     - Create `SubscriptionJpaRepository.java` (Spring Data interface)
     - Create `UserJpaRepository.java` (Spring Data interface)
     - Create `PlanJpaRepository.java` (Spring Data interface)
