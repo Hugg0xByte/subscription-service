@@ -27,7 +27,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Update `application-local.yml` with PostgreSQL connection settings matching the Docker credentials
     - _Requirements: 4.10, 4.12_
 
-- [ ] 2. Domain Layer — Entities, Value Objects, Enums e Events
+- [x] 2. Domain Layer — Entities, Value Objects, Enums e Events
   - [x] 2.1 Implement Money value object and Plan entity
     - Create `Money.java` as Java record with non-negative validation in compact constructor
     - Create `Plan.java` as domain entity with fields: id (UUID), name (String), displayName (String), monthlyPrice (Money), active (boolean), createdAt (Instant)
@@ -86,7 +86,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - **Validates: Requirements 2.12**
     - Verify cancelRequestedAt is set but status remains unchanged
 
-  - [ ] 2.11 Implement PaymentMethod and PaymentAttempt entities
+  - [x] 2.11 Implement PaymentMethod and PaymentAttempt entities
     - Create `PaymentMethod.java` with fields: id, userId, provider, token, active, createdAt, updatedAt
     - Create `PaymentAttempt.java` with fields: id, subscriptionId, amount (Money), status, attemptNumber, idempotencyKey, providerTransactionId, errorCode, errorMessage, createdAt, processedAt
     - _Requirements: 2.3, 2.4_
