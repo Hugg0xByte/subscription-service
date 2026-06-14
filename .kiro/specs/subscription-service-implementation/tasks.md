@@ -45,7 +45,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `PaymentAttemptStatus.java` enum with values: PROCESSING, APPROVED, FAILED, TIMEOUT
     - _Requirements: 2.7, 2.8_
 
-  - [ ] 2.4 Implement domain events as sealed interface hierarchy
+  - [x] 2.4 Implement domain events as sealed interface hierarchy
     - Create `DomainEvent.java` sealed interface with subscriptionId(), occurredAt(), eventType() methods
     - Create record implementations: SubscriptionCreated, SubscriptionRenewed, SubscriptionCanceled, SubscriptionSuspended, PaymentFailed, PaymentApproved
     - _Requirements: 2.13_
