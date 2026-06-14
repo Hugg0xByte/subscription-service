@@ -149,7 +149,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Populate cache on miss, return result
     - _Requirements: 3.10_
 
-  - [ ]* 4.8 Write unit tests for all use cases with mocked ports
+  - [x] 4.8 Write unit tests for all use cases with mocked ports
     - Create `CreateUserUseCaseTest.java` — happy path, email already exists
     - Create `CreateSubscriptionUseCaseTest.java` — happy path, active subscription exists
     - Create `RenewExpiredSubscriptionsUseCaseTest.java` — lock acquired + mixed results, lock not acquired

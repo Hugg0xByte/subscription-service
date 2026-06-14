@@ -146,6 +146,7 @@
                         <exclude>**/*IntegrationTest.java</exclude>
                         <exclude>**/*IT.java</exclude>
                     </excludes>
+                    <excludedGroups>integration</excludedGroups>
                 </configuration>
             </plugin>
 
