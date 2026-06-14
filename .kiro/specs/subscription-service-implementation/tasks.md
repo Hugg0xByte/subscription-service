@@ -55,7 +55,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Implement constructor validation for required fields
     - _Requirements: 2.1_
 
-  - [ ] 2.6 Implement Subscription entity with business methods
+  - [x] 2.6 Implement Subscription entity with business methods
     - Create `Subscription.java` with all fields as specified in design (planId UUID, priceAtPurchase Money instead of Plan enum)
     - Implement `processSuccessfulPayment()`: advance expirationDate +1 month, reset failedAttempts to 0, set status ATIVA, register PaymentApproved/SubscriptionRenewed event
     - Implement `processFailedPayment()`: increment failedAttempts, if reaches 3 set SUSPENSA + suspendedAt, else set PENDENTE_PAGAMENTO, register corresponding event
