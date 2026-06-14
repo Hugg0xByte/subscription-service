@@ -76,7 +76,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - **Validates: Requirements 2.10, 2.14**
     - Verify expirationDate advances exactly 1 month, failedAttempts resets to 0, status becomes ATIVA, domain event registered
 
-  - [ ]* 2.9 Write property tests for failed payment with suspension threshold
+  - [x] 2.9 Write property tests for failed payment with suspension threshold
     - **Property 4: Failed payment postconditions with suspension threshold**
     - **Validates: Requirements 2.11, 2.14**
     - Verify failedAttempts increments, suspension at 3 failures, correct events registered
