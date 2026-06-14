@@ -171,11 +171,11 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Place SQL changelogs in `src/main/resources/db/changelog/changes/`
     - _Requirements: 4.5, 4.6, 4.7, 4.8, 4.9_
 
-  - [x] 6.2 Create JPA entity classes with mappers
+  - [x] 6.2 Create JPA entity classes with mappers (MapStruct)
     - Create `SubscriptionJpaEntity.java` with @Entity, @Table, @Version annotations (planId UUID, priceAtPurchase, currencyAtPurchase)
     - Create `UserJpaEntity.java`, `PlanJpaEntity.java`, `PaymentMethodJpaEntity.java`, `PaymentAttemptJpaEntity.java`, `SubscriptionEventJpaEntity.java`
-    - Create `SubscriptionPersistenceMapper.java` (domain ↔ JPA entity conversion)
-    - Create `UserPersistenceMapper.java`, `PlanPersistenceMapper.java`
+    - Create `SubscriptionPersistenceMapper.java`, `UserPersistenceMapper.java`, `PlanPersistenceMapper.java` as MapStruct `@Mapper(componentModel = "spring")` interfaces
+    - Money value object decomposition handled via `@Mapping(expression=...)` (toJpaEntity) and `default` methods (toDomainEntity)
     - Ensure JPA annotations do NOT leak to domain layer
     - _Requirements: 4.3, 4.4, 4.9_
 
@@ -210,9 +210,11 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `ErrorResponse.java` record
     - _Requirements: 5.3, 5.4_
 
-  - [ ] 7.2 Implement REST mappers
-    - Create `SubscriptionRestMapper.java` (domain entity → response DTO, request → use case input)
-    - Create `UserRestMapper.java`
+  - [ ] 7.2 Implement REST mappers (MapStruct)
+    - Create `SubscriptionRestMapper.java` as MapStruct `@Mapper(componentModel = "spring")` interface (domain entity → SubscriptionResponse DTO)
+    - Create `UserRestMapper.java` as MapStruct `@Mapper(componentModel = "spring")` interface (domain entity → UserResponse DTO)
+    - Use `@Mapping(expression=...)` for Money → BigDecimal/String and status enum → String conversions where needed
+    - Use `default` methods for mappings that require constructor-based domain objects
     - _Requirements: 5.10_
 
   - [ ] 7.3 Implement controllers and global exception handler

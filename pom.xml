@@ -24,6 +24,7 @@
         <maven.compiler.release>25</maven.compiler.release>
 
         <!-- Dependency versions -->
+        <mapstruct.version>1.6.3</mapstruct.version>
         <caffeine.version>3.2.0</caffeine.version>
         <resilience4j.version>2.3.0</resilience4j.version>
         <jqwik.version>1.9.2</jqwik.version>
@@ -74,6 +75,13 @@
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-spring-boot3</artifactId>
             <version>${resilience4j.version}</version>
+        </dependency>
+
+        <!-- MapStruct -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
@@ -130,6 +138,13 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <release>${maven.compiler.release}</release>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${mapstruct.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
 
