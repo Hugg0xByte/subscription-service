@@ -189,7 +189,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Implement `findSubscriptionsDueForRenewal` with `FOR UPDATE SKIP LOCKED` query
     - _Requirements: 4.1, 4.2, 4.11_
 
-  - [ ]* 6.4 Write property test for Subscription serialization round-trip
+  - [x] 6.4 Write property test for Subscription serialization round-trip
     - **Property 6: Subscription serialization round-trip**
     - **Validates: Requirements 2.16**
     - Create `SubscriptionSerializationPropertyTest.java` using jqwik
