@@ -202,7 +202,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Persist entities, retrieve by ID, verify field equality
 
 - [ ] 7. REST API Adapter — Controllers e DTOs
-  - [ ] 7.1 Create request/response DTOs with validation
+  - [x] 7.1 Create request/response DTOs with validation
     - Create `CreateSubscriptionRequest.java` record with @NotNull annotations (userId UUID, planId UUID)
     - Create `CreateUserRequest.java` record with @NotBlank, @Email annotations
     - Create `SubscriptionResponse.java` record (no version or internal IDs of related entities exposed, includes plan name and price)
