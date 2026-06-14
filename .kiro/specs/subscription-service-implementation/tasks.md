@@ -71,7 +71,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `SubscriptionStatePropertyTest.java` using jqwik
     - Test that CANCELADA rejects all operations, non-eligible states reject renewal, valid states allow operations
 
-  - [ ]* 2.8 Write property tests for successful payment postconditions
+  - [x] 2.8 Write property tests for successful payment postconditions
     - **Property 3: Successful payment postconditions**
     - **Validates: Requirements 2.10, 2.14**
     - Verify expirationDate advances exactly 1 month, failedAttempts resets to 0, status becomes ATIVA, domain event registered
