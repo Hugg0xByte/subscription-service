@@ -229,7 +229,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `DtoValidationPropertyTest.java` using jqwik
     - Generate DTOs with invalid fields, verify constraint violations produced
 
-  - [ ]* 7.5 Write property test for REST mapper field preservation
+  - [x] 7.5 Write property test for REST mapper field preservation
     - **Property 10: REST mapper field preservation**
     - **Validates: Requirements 5.10**
     - Create `RestMapperPropertyTest.java` using jqwik
