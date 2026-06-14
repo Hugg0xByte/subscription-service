@@ -137,7 +137,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Handle individual failures without aborting batch
     - _Requirements: 3.8, 3.13, 3.14_
 
-  - [ ] 4.6 Implement CancelSubscriptionUseCase
+  - [x] 4.6 Implement CancelSubscriptionUseCase
     - Find subscription by ID, throw SubscriptionNotFoundException if not found
     - Call requestCancellation() on domain entity
     - Persist, evict cache, publish domain event
