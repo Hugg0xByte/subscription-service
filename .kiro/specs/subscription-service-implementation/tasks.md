@@ -94,7 +94,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
 - [x] 3. Checkpoint — Domain Layer
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 4. Application Layer — Use Cases e Ports
+- [x] 4. Application Layer — Use Cases e Ports
   - [x] 4.1 Define port interfaces
     - Create `SubscriptionRepositoryPort.java` with methods: save, findById, findActiveByUserId, findSubscriptionsDueForRenewal, existsActiveForUser
     - Create `UserRepositoryPort.java` with methods: save, findById, findByEmail
@@ -143,7 +143,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Persist, evict cache, publish domain event
     - _Requirements: 3.9_
 
-  - [ ] 4.7 Implement GetActiveSubscriptionUseCase
+  - [x] 4.7 Implement GetActiveSubscriptionUseCase
     - Check cache via SubscriptionCachePort.getActiveSubscription
     - On cache miss, query SubscriptionRepositoryPort.findActiveByUserId
     - Populate cache on miss, return result
