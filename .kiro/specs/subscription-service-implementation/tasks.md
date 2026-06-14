@@ -91,11 +91,11 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `PaymentAttempt.java` with fields: id, subscriptionId, amount (Money), status, attemptNumber, idempotencyKey, providerTransactionId, errorCode, errorMessage, createdAt, processedAt
     - _Requirements: 2.3, 2.4_
 
-- [ ] 3. Checkpoint — Domain Layer
+- [x] 3. Checkpoint — Domain Layer
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 4. Application Layer — Use Cases e Ports
-  - [ ] 4.1 Define port interfaces
+  - [x] 4.1 Define port interfaces
     - Create `SubscriptionRepositoryPort.java` with methods: save, findById, findActiveByUserId, findSubscriptionsDueForRenewal, existsActiveForUser
     - Create `UserRepositoryPort.java` with methods: save, findById, findByEmail
     - Create `PaymentGatewayPort.java` with processPayment returning PaymentResult (sealed interface)
