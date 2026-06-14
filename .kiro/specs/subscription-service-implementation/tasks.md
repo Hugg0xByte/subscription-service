@@ -130,7 +130,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Persist, evict subscription cache, publish SubscriptionCreated event
     - _Requirements: 3.9, 3.14_
 
-  - [ ] 4.5 Implement RenewExpiredSubscriptionsUseCase
+  - [x] 4.5 Implement RenewExpiredSubscriptionsUseCase
     - Acquire lock via LockManagerPort, abort if not acquired
     - Query due subscriptions via findSubscriptionsDueForRenewal
     - For each subscription: process payment, update entity state, persist, evict cache, publish event
