@@ -201,8 +201,8 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `PersistenceRoundTripPropertyTest.java` using jqwik + Testcontainers
     - Persist entities, retrieve by ID, verify field equality
 
-- [ ] 7. REST API Adapter — Controllers e DTOs
-  - [ ] 7.1 Create request/response DTOs with validation
+- [x] 7. REST API Adapter — Controllers e DTOs
+  - [x] 7.1 Create request/response DTOs with validation
     - Create `CreateSubscriptionRequest.java` record with @NotNull annotations (userId UUID, planId UUID)
     - Create `CreateUserRequest.java` record with @NotBlank, @Email annotations
     - Create `SubscriptionResponse.java` record (no version or internal IDs of related entities exposed, includes plan name and price)
@@ -210,26 +210,26 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `ErrorResponse.java` record
     - _Requirements: 5.3, 5.4_
 
-  - [ ] 7.2 Implement REST mappers (MapStruct)
+  - [x] 7.2 Implement REST mappers (MapStruct)
     - Create `SubscriptionRestMapper.java` as MapStruct `@Mapper(componentModel = "spring")` interface (domain entity → SubscriptionResponse DTO)
     - Create `UserRestMapper.java` as MapStruct `@Mapper(componentModel = "spring")` interface (domain entity → UserResponse DTO)
     - Use `@Mapping(expression=...)` for Money → BigDecimal/String and status enum → String conversions where needed
     - Use `default` methods for mappings that require constructor-based domain objects
     - _Requirements: 5.10_
 
-  - [ ] 7.3 Implement controllers and global exception handler
+  - [x] 7.3 Implement controllers and global exception handler
     - Create `SubscriptionController.java` with endpoints: POST /api/v1/subscriptions, GET /api/v1/subscriptions/active, DELETE /api/v1/subscriptions/{id}/cancel
     - Create `UserController.java` with endpoint: POST /api/v1/users
     - Create `GlobalExceptionHandler.java` @RestControllerAdvice mapping all exceptions to correct HTTP status codes
     - _Requirements: 5.1, 5.2, 5.5, 5.6, 5.7, 5.8, 5.9, 5.11_
 
-  - [ ]* 7.4 Write property test for DTO validation
+  - [x] 7.4 Write property test for DTO validation
     - **Property 9: DTO validation rejects invalid input**
     - **Validates: Requirements 5.3**
     - Create `DtoValidationPropertyTest.java` using jqwik
     - Generate DTOs with invalid fields, verify constraint violations produced
 
-  - [ ]* 7.5 Write property test for REST mapper field preservation
+  - [x] 7.5 Write property test for REST mapper field preservation
     - **Property 10: REST mapper field preservation**
     - **Validates: Requirements 5.10**
     - Create `RestMapperPropertyTest.java` using jqwik
