@@ -223,7 +223,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `GlobalExceptionHandler.java` @RestControllerAdvice mapping all exceptions to correct HTTP status codes
     - _Requirements: 5.1, 5.2, 5.5, 5.6, 5.7, 5.8, 5.9, 5.11_
 
-  - [ ]* 7.4 Write property test for DTO validation
+  - [x] 7.4 Write property test for DTO validation
     - **Property 9: DTO validation rejects invalid input**
     - **Validates: Requirements 5.3**
     - Create `DtoValidationPropertyTest.java` using jqwik
