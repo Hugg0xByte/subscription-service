@@ -303,7 +303,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Log INFO: batch start, subscriptions found, successes, failures, duration
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.9_
 
-- [ ] 11. Checkpoint — Scheduler, Cache, Events
+- [x] 11. Checkpoint — Scheduler, Cache, Events
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 12. Observability, Integration Tests e Documentation
