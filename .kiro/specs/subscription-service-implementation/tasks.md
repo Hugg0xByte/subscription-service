@@ -332,7 +332,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `PlanTest.java` — entity creation, validation, monthlyPrice consistency
     - _Requirements: 9.6_
 
-  - [ ] 12.4 Write ArchUnit architecture tests
+  - [x] 12.4 Write ArchUnit architecture tests
     - Create `ArchitectureTest.java` verifying: domain has no Spring/JPA imports, application has no adapter imports, outbound adapters implement port interfaces
     - _Requirements: 1.4, 1.5_
 
