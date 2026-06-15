@@ -236,7 +236,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Generate valid Subscription entities, verify mapped response preserves all exposed fields
 
 - [ ] 8. Payment Adapter — Mock Gateway e Resiliência
-  - [ ] 8.1 Implement MockPaymentGatewayAdapter with configurable outcomes
+  - [x] 8.1 Implement MockPaymentGatewayAdapter with configurable outcomes
     - Create `MockPaymentGatewayAdapter.java` implementing PaymentGatewayPort
     - Configure success/failure/timeout ratios via application properties (default: 80%/15%/5%)
     - Generate idempotency key in format `subscription:{subscriptionId}:billing-cycle:{expirationDate}`

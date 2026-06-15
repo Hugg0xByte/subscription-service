@@ -27,6 +27,14 @@ spring:
 server:
   port: 8080
 
+payment:
+  mock:
+    approve-percentage: 80
+    reject-percentage: 15
+    timeout-percentage: 5
+    min-delay-ms: 100
+    max-delay-ms: 500
+
 management:
   endpoints:
     web:
