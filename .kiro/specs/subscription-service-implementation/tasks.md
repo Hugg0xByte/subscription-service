@@ -270,7 +270,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Implement getAllActivePlans, putAllActivePlans, evictAllPlans
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
 
-  - [ ]* 10.2 Write property test for cache put-get-evict round-trip
+  - [x] 10.2 Write property test for cache put-get-evict round-trip
     - **Property 12: Cache put-get-evict round-trip**
     - **Validates: Requirements 8.3, 8.4, 8.5, 8.6**
     - Create `CacheRoundTripPropertyTest.java` using jqwik
