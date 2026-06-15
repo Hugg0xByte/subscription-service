@@ -26,6 +26,8 @@ import com.globo.subscription.domain.enums.SubscriptionStatus;
 import com.globo.subscription.domain.event.DomainEvent;
 import com.globo.subscription.domain.vo.Money;
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -55,7 +57,8 @@ class RenewExpiredSubscriptionsUseCaseTest {
     void setUp() {
         useCase = new RenewExpiredSubscriptionsUseCase(
                 subscriptionRepositoryPort, paymentGatewayPort,
-                subscriptionCachePort, eventPublisherPort, lockManagerPort);
+                subscriptionCachePort, eventPublisherPort, lockManagerPort,
+                new SimpleMeterRegistry());
     }
 
     @Test

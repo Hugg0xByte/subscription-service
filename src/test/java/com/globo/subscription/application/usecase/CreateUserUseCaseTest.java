@@ -16,6 +16,8 @@ import com.globo.subscription.application.exception.EmailAlreadyExistsException;
 import com.globo.subscription.application.port.UserRepositoryPort;
 import com.globo.subscription.domain.entity.User;
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -33,7 +35,7 @@ class CreateUserUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        useCase = new CreateUserUseCase(userRepositoryPort);
+        useCase = new CreateUserUseCase(userRepositoryPort, new SimpleMeterRegistry());
     }
 
     @Test

@@ -19,6 +19,8 @@ import com.globo.subscription.domain.entity.Subscription;
 import com.globo.subscription.domain.enums.SubscriptionStatus;
 import com.globo.subscription.domain.vo.Money;
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -37,7 +39,8 @@ class GetActiveSubscriptionUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        useCase = new GetActiveSubscriptionUseCase(subscriptionCachePort, subscriptionRepositoryPort);
+        useCase = new GetActiveSubscriptionUseCase(subscriptionCachePort, subscriptionRepositoryPort,
+                new SimpleMeterRegistry());
     }
 
     @Test

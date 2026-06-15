@@ -307,7 +307,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 12. Observability, Integration Tests e Documentation
-  - [ ] 12.1 Configure structured logging and Micrometer metrics
+  - [x] 12.1 Configure structured logging and Micrometer metrics
     - Configure structured JSON logging with fields: timestamp, level, logger, message, traceId (MDC), subscriptionId, userId
     - Configure log levels: DEBUG for cache, INFO for use cases, WARN for payment/lock failures, ERROR for unhandled exceptions
     - Expose Actuator endpoints: /actuator/health, /actuator/metrics, /actuator/info

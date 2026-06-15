@@ -22,6 +22,10 @@ import com.globo.subscription.domain.entity.Subscription;
 import com.globo.subscription.domain.enums.PaymentAttemptStatus;
 import com.globo.subscription.domain.event.DomainEvent;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
+
 /**
  * Use case responsible for renewing expired subscriptions in batch.
  * Acquires a distributed lock, queries due subscriptions, processes payment for each,
@@ -41,17 +45,36 @@ public class RenewExpiredSubscriptionsUseCase {
     private final SubscriptionCachePort subscriptionCachePort;
     private final EventPublisherPort eventPublisherPort;
     private final LockManagerPort lockManagerPort;
+    private final Timer renewalBatchTimer;
+    private final Counter renewalBatchCounter;
+    private final Counter paymentApprovedCounter;
+    private final Counter paymentFailedCounter;
 
     public RenewExpiredSubscriptionsUseCase(SubscriptionRepositoryPort subscriptionRepositoryPort,
                                             PaymentGatewayPort paymentGatewayPort,
                                             SubscriptionCachePort subscriptionCachePort,
                                             EventPublisherPort eventPublisherPort,
-                                            LockManagerPort lockManagerPort) {
+                                            LockManagerPort lockManagerPort,
+                                            MeterRegistry meterRegistry) {
         this.subscriptionRepositoryPort = subscriptionRepositoryPort;
         this.paymentGatewayPort = paymentGatewayPort;
         this.subscriptionCachePort = subscriptionCachePort;
         this.eventPublisherPort = eventPublisherPort;
         this.lockManagerPort = lockManagerPort;
+        this.renewalBatchTimer = Timer.builder("subscription.renewal.batch.duration")
+                .description("Duration of renewal batch execution")
+                .register(meterRegistry);
+        this.renewalBatchCounter = Counter.builder("subscription.renewal.batch.count")
+                .description("Number of renewal batch executions")
+                .register(meterRegistry);
+        this.paymentApprovedCounter = Counter.builder("subscription.payment.outcome")
+                .tag("outcome", "approved")
+                .description("Number of approved payment attempts")
+                .register(meterRegistry);
+        this.paymentFailedCounter = Counter.builder("subscription.payment.outcome")
+                .tag("outcome", "failed")
+                .description("Number of failed payment attempts")
+                .register(meterRegistry);
     }
 
     /**
@@ -61,38 +84,41 @@ public class RenewExpiredSubscriptionsUseCase {
      * @param batchSize   the maximum number of subscriptions to process in this batch
      */
     public void execute(LocalDate currentDate, int batchSize) {
-        boolean lockAcquired = false;
-        try {
-            lockAcquired = lockManagerPort.acquireLock(LOCK_NAME, LOCK_TTL);
-            if (!lockAcquired) {
-                log.warn("Could not acquire lock '{}'. Aborting renewal batch.", LOCK_NAME);
-                return;
-            }
+        renewalBatchCounter.increment();
+        renewalBatchTimer.record(() -> {
+            boolean lockAcquired = false;
+            try {
+                lockAcquired = lockManagerPort.acquireLock(LOCK_NAME, LOCK_TTL);
+                if (!lockAcquired) {
+                    log.warn("Could not acquire lock '{}'. Aborting renewal batch.", LOCK_NAME);
+                    return;
+                }
 
-            List<Subscription> dueSubscriptions = subscriptionRepositoryPort
-                    .findSubscriptionsDueForRenewal(currentDate, batchSize);
+                List<Subscription> dueSubscriptions = subscriptionRepositoryPort
+                        .findSubscriptionsDueForRenewal(currentDate, batchSize);
 
-            log.info("Renewal batch started. Found {} subscriptions due for renewal.", dueSubscriptions.size());
+                log.info("Renewal batch started. Found {} subscriptions due for renewal.", dueSubscriptions.size());
 
-            int successes = 0;
-            int failures = 0;
+                int successes = 0;
+                int failures = 0;
 
-            for (Subscription subscription : dueSubscriptions) {
-                try {
-                    processSubscriptionRenewal(subscription);
-                    successes++;
-                } catch (Exception e) {
-                    failures++;
-                    log.error("Failed to renew subscription {}: {}", subscription.getId(), e.getMessage(), e);
+                for (Subscription subscription : dueSubscriptions) {
+                    try {
+                        processSubscriptionRenewal(subscription);
+                        successes++;
+                    } catch (Exception e) {
+                        failures++;
+                        log.error("Failed to renew subscription {}: {}", subscription.getId(), e.getMessage(), e);
+                    }
+                }
+
+                log.info("Renewal batch completed. Successes: {}, Failures: {}", successes, failures);
+            } finally {
+                if (lockAcquired) {
+                    lockManagerPort.releaseLock(LOCK_NAME);
                 }
             }
-
-            log.info("Renewal batch completed. Successes: {}, Failures: {}", successes, failures);
-        } finally {
-            if (lockAcquired) {
-                lockManagerPort.releaseLock(LOCK_NAME);
-            }
-        }
+        });
     }
 
     private void processSubscriptionRenewal(Subscription subscription) {
@@ -118,10 +144,16 @@ public class RenewExpiredSubscriptionsUseCase {
         // Process payment via gateway
         PaymentResult result = paymentGatewayPort.processPayment(paymentAttempt);
 
-        // Update subscription state based on payment result
+        // Update subscription state based on payment result and record metrics
         switch (result) {
-            case PaymentResult.Approved _ -> subscription.processSuccessfulPayment();
-            case PaymentResult.Failed _ -> subscription.processFailedPayment();
+            case PaymentResult.Approved _ -> {
+                subscription.processSuccessfulPayment();
+                paymentApprovedCounter.increment();
+            }
+            case PaymentResult.Failed _ -> {
+                subscription.processFailedPayment();
+                paymentFailedCounter.increment();
+            }
         }
 
         // Persist updated subscription

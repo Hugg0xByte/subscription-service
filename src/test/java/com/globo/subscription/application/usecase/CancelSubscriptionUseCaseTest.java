@@ -23,6 +23,8 @@ import com.globo.subscription.domain.event.DomainEvent;
 import com.globo.subscription.domain.event.SubscriptionCanceled;
 import com.globo.subscription.domain.vo.Money;
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -45,7 +47,8 @@ class CancelSubscriptionUseCaseTest {
     @BeforeEach
     void setUp() {
         useCase = new CancelSubscriptionUseCase(
-                subscriptionRepositoryPort, subscriptionCachePort, eventPublisherPort);
+                subscriptionRepositoryPort, subscriptionCachePort, eventPublisherPort,
+                new SimpleMeterRegistry());
     }
 
     @Test

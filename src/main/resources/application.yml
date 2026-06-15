@@ -79,9 +79,29 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,metrics,info,circuitbreakers,retries
+        include: health,metrics,info,prometheus,circuitbreakers,retries
+  endpoint:
+    health:
+      show-details: always
+    metrics:
+      enabled: true
+    info:
+      enabled: true
   health:
     circuitbreakers:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        subscription.usecase: true
+        subscription.renewal: true
+      percentiles:
+        subscription.usecase: 0.5,0.95,0.99
+        subscription.renewal: 0.5,0.95,0.99
+  info:
+    env:
       enabled: true
 
 ---
