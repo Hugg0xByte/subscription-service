@@ -27,6 +27,14 @@ spring:
 server:
   port: 8080
 
+cache:
+  subscription:
+    ttl-minutes: 5
+    max-size: 10000
+  plan:
+    ttl-minutes: 60
+    max-size: 100
+
 payment:
   mock:
     approve-percentage: 80
