@@ -290,7 +290,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `EventPublicationPropertyTest.java` using jqwik + Testcontainers
     - Publish event, query subscription_events, verify matching subscription_id, event_type, payload
 
-  - [ ] 10.5 Implement InMemoryLockManagerAdapter
+  - [x] 10.5 Implement InMemoryLockManagerAdapter
     - Create `InMemoryLockManagerAdapter.java` implementing LockManagerPort
     - Use ReentrantLock or AtomicBoolean for single-instance local locking
     - _Requirements: 7.8_
