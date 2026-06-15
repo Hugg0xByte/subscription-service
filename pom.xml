@@ -138,6 +138,7 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <release>${maven.compiler.release}</release>
+                    <proc>full</proc>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.mapstruct</groupId>

@@ -235,15 +235,15 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `RestMapperPropertyTest.java` using jqwik
     - Generate valid Subscription entities, verify mapped response preserves all exposed fields
 
-- [ ] 8. Payment Adapter — Mock Gateway e Resiliência
-  - [ ] 8.1 Implement MockPaymentGatewayAdapter with configurable outcomes
+- [x] 8. Payment Adapter — Mock Gateway e Resiliência
+  - [x] 8.1 Implement MockPaymentGatewayAdapter with configurable outcomes
     - Create `MockPaymentGatewayAdapter.java` implementing PaymentGatewayPort
     - Configure success/failure/timeout ratios via application properties (default: 80%/15%/5%)
     - Generate idempotency key in format `subscription:{subscriptionId}:billing-cycle:{expirationDate}`
     - Simulate processing delay for realistic behavior
     - _Requirements: 6.1, 6.2, 6.8, 6.10_
 
-  - [ ] 8.2 Configure Resilience4j circuit breaker, retry, and timeout
+  - [x] 8.2 Configure Resilience4j circuit breaker, retry, and timeout
     - Configure CircuitBreaker: open after 5 consecutive failures
     - Configure Retry: max 3 attempts, exponential backoff (1s, 2s, 4s)
     - Configure Timeout: 10 seconds per request
@@ -251,13 +251,13 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Expose Resilience4j metrics via Actuator
     - _Requirements: 6.3, 6.4, 6.5, 6.6, 6.7, 6.9_
 
-  - [ ]* 8.3 Write property test for idempotency key deterministic generation
+  - [x] 8.3 Write property test for idempotency key deterministic generation
     - **Property 11: Idempotency key deterministic generation**
     - **Validates: Requirements 6.8**
     - Create `IdempotencyKeyPropertyTest.java` using jqwik
     - Verify format is `subscription:{id}:billing-cycle:{date}` and same inputs always produce same output
 
-- [ ] 9. Checkpoint — Adapters
+- [x] 9. Checkpoint — Adapters
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 10. Scheduler, Cache e Event Publisher
