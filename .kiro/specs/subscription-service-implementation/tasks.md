@@ -257,7 +257,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `IdempotencyKeyPropertyTest.java` using jqwik
     - Verify format is `subscription:{id}:billing-cycle:{date}` and same inputs always produce same output
 
-- [ ] 9. Checkpoint — Adapters
+- [x] 9. Checkpoint — Adapters
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 10. Scheduler, Cache e Event Publisher
