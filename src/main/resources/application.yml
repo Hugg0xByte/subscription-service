@@ -35,6 +35,11 @@ cache:
     ttl-minutes: 60
     max-size: 100
 
+scheduler:
+  renewal:
+    cron: "0 0 * * * *"
+    batch-size: 100
+
 payment:
   mock:
     approve-percentage: 80

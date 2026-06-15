@@ -260,7 +260,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
 - [x] 9. Checkpoint — Adapters
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 10. Scheduler, Cache e Event Publisher
+- [x] 10. Scheduler, Cache e Event Publisher
   - [x] 10.1 Implement CaffeineSubscriptionCacheAdapter and CaffeinePlanCacheAdapter
     - Create `CaffeineSubscriptionCacheAdapter.java` implementing SubscriptionCachePort
     - Configure Caffeine with TTL 5 minutes (configurable) and max 10,000 entries for subscriptions
@@ -295,7 +295,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Use ReentrantLock or AtomicBoolean for single-instance local locking
     - _Requirements: 7.8_
 
-  - [ ] 10.6 Implement RenewalScheduler
+  - [x] 10.6 Implement RenewalScheduler
     - Create `RenewalScheduler.java` with @Scheduled and configurable cron (default: every hour)
     - Acquire lock, delegate to RenewExpiredSubscriptionsUseCase, release lock in finally block
     - Process in configurable batch sizes (default: 100)
