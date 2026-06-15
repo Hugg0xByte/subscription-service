@@ -260,8 +260,8 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
 - [x] 9. Checkpoint — Adapters
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 10. Scheduler, Cache e Event Publisher
-  - [ ] 10.1 Implement CaffeineSubscriptionCacheAdapter and CaffeinePlanCacheAdapter
+- [x] 10. Scheduler, Cache e Event Publisher
+  - [x] 10.1 Implement CaffeineSubscriptionCacheAdapter and CaffeinePlanCacheAdapter
     - Create `CaffeineSubscriptionCacheAdapter.java` implementing SubscriptionCachePort
     - Configure Caffeine with TTL 5 minutes (configurable) and max 10,000 entries for subscriptions
     - Implement getActiveSubscription (cache hit returns without DB query), putActiveSubscription, evictActiveSubscription
@@ -270,32 +270,32 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Implement getAllActivePlans, putAllActivePlans, evictAllPlans
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
 
-  - [ ]* 10.2 Write property test for cache put-get-evict round-trip
+  - [x] 10.2 Write property test for cache put-get-evict round-trip
     - **Property 12: Cache put-get-evict round-trip**
     - **Validates: Requirements 8.3, 8.4, 8.5, 8.6**
     - Create `CacheRoundTripPropertyTest.java` using jqwik
     - Verify subscription cache: put→get returns subscription, evict→get returns empty
     - Verify plan cache: putAll→getAll returns plans, evict→getAll returns empty
 
-  - [ ] 10.3 Implement LocalEventPublisherAdapter (outbox pattern)
+  - [x] 10.3 Implement LocalEventPublisherAdapter (outbox pattern)
     - Create `LocalEventPublisherAdapter.java` implementing EventPublisherPort
     - Serialize domain event payload to JSON
     - Insert row in subscription_events table with published_at=NULL
     - Ensure participation in same transaction as use case (atomicity guarantee)
     - _Requirements: 8.5, 8.6, 8.7_
 
-  - [ ]* 10.4 Write property test for event publication round-trip
+  - [x] 10.4 Write property test for event publication round-trip
     - **Property 8: Event publication round-trip**
     - **Validates: Requirements 8.8**
     - Create `EventPublicationPropertyTest.java` using jqwik + Testcontainers
     - Publish event, query subscription_events, verify matching subscription_id, event_type, payload
 
-  - [ ] 10.5 Implement InMemoryLockManagerAdapter
+  - [x] 10.5 Implement InMemoryLockManagerAdapter
     - Create `InMemoryLockManagerAdapter.java` implementing LockManagerPort
     - Use ReentrantLock or AtomicBoolean for single-instance local locking
     - _Requirements: 7.8_
 
-  - [ ] 10.6 Implement RenewalScheduler
+  - [x] 10.6 Implement RenewalScheduler
     - Create `RenewalScheduler.java` with @Scheduled and configurable cron (default: every hour)
     - Acquire lock, delegate to RenewExpiredSubscriptionsUseCase, release lock in finally block
     - Process in configurable batch sizes (default: 100)
@@ -303,7 +303,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Log INFO: batch start, subscriptions found, successes, failures, duration
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.9_
 
-- [ ] 11. Checkpoint — Scheduler, Cache, Events
+- [x] 11. Checkpoint — Scheduler, Cache, Events
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 12. Observability, Integration Tests e Documentation
