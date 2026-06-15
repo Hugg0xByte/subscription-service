@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import com.globo.subscription.adapter.inbound.rest.dto.SubscriptionResponse;
+import com.globo.subscription.adapter.inbound.rest.mapper.SubscriptionRestMapperImpl;
 import com.globo.subscription.domain.entity.Plan;
 import com.globo.subscription.domain.entity.Subscription;
 import com.globo.subscription.domain.enums.SubscriptionStatus;
@@ -17,8 +18,6 @@ import net.jqwik.api.Combinators;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import net.jqwik.api.Provide;
-
-import org.mapstruct.factory.Mappers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class RestMapperPropertyTest {
 
-    private final SubscriptionRestMapper mapper = Mappers.getMapper(SubscriptionRestMapper.class);
+    private final SubscriptionRestMapper mapper = new SubscriptionRestMapperImpl();
 
     @Property
     void mappingPreservesAllExposedFields(

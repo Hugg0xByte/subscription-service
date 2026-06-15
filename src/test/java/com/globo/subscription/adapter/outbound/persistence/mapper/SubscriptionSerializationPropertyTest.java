@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import com.globo.subscription.adapter.outbound.persistence.entity.SubscriptionJpaEntity;
+import com.globo.subscription.adapter.outbound.persistence.mapper.SubscriptionPersistenceMapperImpl;
 import com.globo.subscription.domain.entity.Subscription;
 import com.globo.subscription.domain.enums.SubscriptionStatus;
 import com.globo.subscription.domain.vo.Money;
@@ -16,8 +17,6 @@ import net.jqwik.api.Combinators;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import net.jqwik.api.Provide;
-
-import org.mapstruct.factory.Mappers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class SubscriptionSerializationPropertyTest {
 
-    private final SubscriptionPersistenceMapper mapper = Mappers.getMapper(SubscriptionPersistenceMapper.class);
+    private final SubscriptionPersistenceMapper mapper = new SubscriptionPersistenceMapperImpl();
 
     @Property
     void domainToJpaToDomainPreservesAllFields(

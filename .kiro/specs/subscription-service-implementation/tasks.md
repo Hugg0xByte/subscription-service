@@ -344,7 +344,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Include API endpoint documentation with curl/httpie examples
     - _Requirements: 9.10_
 
-- [ ] 13. Final Checkpoint
+- [-] 13. Final Checkpoint
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
