@@ -325,7 +325,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Configure integration tests to run on-demand (not every build) via Maven profile
     - _Requirements: 9.5, 9.8_
 
-  - [ ]* 12.3 Write unit tests for domain entities (specific examples)
+  - [x] 12.3 Write unit tests for domain entities (specific examples)
     - Create `SubscriptionTest.java` — specific state transitions with known inputs
     - Create `UserTest.java` — creation, validation
     - Create `MoneyTest.java` — edge cases (zero, boundary)
