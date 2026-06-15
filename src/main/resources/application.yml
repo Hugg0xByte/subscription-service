@@ -35,11 +35,41 @@ payment:
     min-delay-ms: 100
     max-delay-ms: 500
 
+resilience4j:
+  circuitbreaker:
+    instances:
+      paymentGateway:
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 5
+        failure-rate-threshold: 100
+        minimum-number-of-calls: 5
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
+        register-health-indicator: true
+  retry:
+    instances:
+      paymentGateway:
+        max-attempts: 3
+        wait-duration: 1s
+        exponential-backoff-multiplier: 2
+        enable-exponential-backoff: true
+        retry-exceptions:
+          - java.lang.RuntimeException
+          - java.util.concurrent.TimeoutException
+  timelimiter:
+    instances:
+      paymentGateway:
+        timeout-duration: 10s
+        cancel-running-future: true
+
 management:
   endpoints:
     web:
       exposure:
-        include: health,metrics,info
+        include: health,metrics,info,circuitbreakers,retries
+  health:
+    circuitbreakers:
+      enabled: true
 
 ---
 spring:

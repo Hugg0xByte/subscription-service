@@ -243,7 +243,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Simulate processing delay for realistic behavior
     - _Requirements: 6.1, 6.2, 6.8, 6.10_
 
-  - [ ] 8.2 Configure Resilience4j circuit breaker, retry, and timeout
+  - [x] 8.2 Configure Resilience4j circuit breaker, retry, and timeout
     - Configure CircuitBreaker: open after 5 consecutive failures
     - Configure Retry: max 3 attempts, exponential backoff (1s, 2s, 4s)
     - Configure Timeout: 10 seconds per request
