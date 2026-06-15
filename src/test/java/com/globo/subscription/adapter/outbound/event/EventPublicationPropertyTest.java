@@ -102,6 +102,7 @@ class EventPublicationPropertyTest {
         props.put("server.port", "0");
 
         context = new SpringApplicationBuilder(EventTestConfig.class)
+                .web(org.springframework.boot.WebApplicationType.NONE)
                 .properties(props)
                 .run();
 

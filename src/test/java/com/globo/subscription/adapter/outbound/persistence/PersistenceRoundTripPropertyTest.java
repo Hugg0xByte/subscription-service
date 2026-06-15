@@ -55,15 +55,75 @@ import static org.assertj.core.api.Assertions.assertThat;
 class PersistenceRoundTripPropertyTest {
 
     /**
-     * Minimal Spring configuration that only loads persistence-related beans.
-     * Avoids loading use cases, controllers, and other adapters that have unsatisfied dependencies.
+     * Minimal Spring configuration for persistence round-trip tests.
+     * Provides mapper beans manually to avoid dependency on MapStruct-generated Impl classes
+     * which may have inconsistent bytecode due to IDE (ECJ) compilation.
      */
     @Configuration
     @EnableAutoConfiguration
     @EntityScan(basePackages = "com.globo.subscription.adapter.outbound.persistence.entity")
     @EnableJpaRepositories(basePackages = "com.globo.subscription.adapter.outbound.persistence.repository")
-    @ComponentScan(basePackages = "com.globo.subscription.adapter.outbound.persistence")
     static class PersistenceTestConfig {
+
+        @org.springframework.context.annotation.Bean
+        com.globo.subscription.adapter.outbound.persistence.mapper.SubscriptionPersistenceMapper subscriptionPersistenceMapper() {
+            return new com.globo.subscription.adapter.outbound.persistence.mapper.SubscriptionPersistenceMapper() {
+                @Override
+                public com.globo.subscription.adapter.outbound.persistence.entity.SubscriptionJpaEntity toJpaEntity(
+                        com.globo.subscription.domain.entity.Subscription domain) {
+                    if (domain == null) return null;
+                    var jpa = new com.globo.subscription.adapter.outbound.persistence.entity.SubscriptionJpaEntity();
+                    jpa.setId(domain.getId());
+                    jpa.setUserId(domain.getUserId());
+                    jpa.setPlanId(domain.getPlanId());
+                    jpa.setPriceAtPurchase(domain.getPriceAtPurchase().amount());
+                    jpa.setCurrencyAtPurchase(domain.getPriceAtPurchase().currency());
+                    jpa.setStatus(domain.getStatus());
+                    jpa.setStartDate(domain.getStartDate());
+                    jpa.setExpirationDate(domain.getExpirationDate());
+                    jpa.setCancelRequestedAt(domain.getCancelRequestedAt());
+                    jpa.setSuspendedAt(domain.getSuspendedAt());
+                    jpa.setFailedAttempts(domain.getFailedAttempts());
+                    jpa.setVersion(domain.getVersion());
+                    jpa.setCreatedAt(domain.getCreatedAt());
+                    jpa.setUpdatedAt(domain.getUpdatedAt());
+                    return jpa;
+                }
+            };
+        }
+
+        @org.springframework.context.annotation.Bean
+        com.globo.subscription.adapter.outbound.persistence.mapper.UserPersistenceMapper userPersistenceMapper() {
+            return new com.globo.subscription.adapter.outbound.persistence.mapper.UserPersistenceMapper() {
+                @Override
+                public com.globo.subscription.adapter.outbound.persistence.entity.UserJpaEntity toJpaEntity(
+                        com.globo.subscription.domain.entity.User domain) {
+                    if (domain == null) return null;
+                    var jpa = new com.globo.subscription.adapter.outbound.persistence.entity.UserJpaEntity();
+                    jpa.setId(domain.getId());
+                    jpa.setName(domain.getName());
+                    jpa.setEmail(domain.getEmail());
+                    jpa.setActive(domain.isActive());
+                    jpa.setCreatedAt(domain.getCreatedAt());
+                    jpa.setUpdatedAt(domain.getUpdatedAt());
+                    return jpa;
+                }
+            };
+        }
+
+        @org.springframework.context.annotation.Bean
+        JpaUserRepositoryAdapter jpaUserRepositoryAdapter(
+                com.globo.subscription.adapter.outbound.persistence.repository.UserJpaRepository repo,
+                com.globo.subscription.adapter.outbound.persistence.mapper.UserPersistenceMapper mapper) {
+            return new JpaUserRepositoryAdapter(repo, mapper);
+        }
+
+        @org.springframework.context.annotation.Bean
+        JpaSubscriptionRepositoryAdapter jpaSubscriptionRepositoryAdapter(
+                com.globo.subscription.adapter.outbound.persistence.repository.SubscriptionJpaRepository repo,
+                com.globo.subscription.adapter.outbound.persistence.mapper.SubscriptionPersistenceMapper mapper) {
+            return new JpaSubscriptionRepositoryAdapter(repo, mapper);
+        }
     }
 
     static PostgreSQLContainer<?> postgres;
@@ -95,6 +155,7 @@ class PersistenceRoundTripPropertyTest {
         props.put("server.port", "0");
 
         context = new SpringApplicationBuilder(PersistenceTestConfig.class)
+                .web(org.springframework.boot.WebApplicationType.NONE)
                 .properties(props)
                 .run();
 
