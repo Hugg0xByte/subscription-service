@@ -13,6 +13,10 @@ import org.springframework.stereotype.Component;
 import com.globo.subscription.application.port.LockManagerPort;
 import com.globo.subscription.application.usecase.RenewExpiredSubscriptionsUseCase;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
+
 /**
  * Inbound adapter that triggers subscription renewal processing on a configurable cron schedule.
  * Acquires a distributed lock before processing to prevent duplicate executions across instances.
@@ -28,13 +32,28 @@ public class RenewalScheduler {
     private final RenewExpiredSubscriptionsUseCase renewExpiredSubscriptionsUseCase;
     private final LockManagerPort lockManagerPort;
     private final int batchSize;
+    private final Timer schedulerTimer;
+    private final Counter schedulerExecutionCounter;
+    private final Counter schedulerSkippedCounter;
 
     public RenewalScheduler(RenewExpiredSubscriptionsUseCase renewExpiredSubscriptionsUseCase,
                             LockManagerPort lockManagerPort,
-                            @Value("${scheduler.renewal.batch-size:100}") int batchSize) {
+                            @Value("${scheduler.renewal.batch-size:100}") int batchSize,
+                            MeterRegistry meterRegistry) {
         this.renewExpiredSubscriptionsUseCase = renewExpiredSubscriptionsUseCase;
         this.lockManagerPort = lockManagerPort;
         this.batchSize = batchSize;
+        this.schedulerTimer = Timer.builder("subscription.scheduler.duration")
+                .description("Duration of scheduler execution")
+                .register(meterRegistry);
+        this.schedulerExecutionCounter = Counter.builder("subscription.scheduler.executions")
+                .tag("result", "executed")
+                .description("Number of scheduler executions that processed subscriptions")
+                .register(meterRegistry);
+        this.schedulerSkippedCounter = Counter.builder("subscription.scheduler.executions")
+                .tag("result", "skipped")
+                .description("Number of scheduler executions skipped due to lock")
+                .register(meterRegistry);
     }
 
     @Scheduled(cron = "${scheduler.renewal.cron:0 0 * * * *}")
@@ -46,10 +65,12 @@ public class RenewalScheduler {
         try {
             lockAcquired = lockManagerPort.acquireLock(LOCK_NAME, LOCK_TTL);
             if (!lockAcquired) {
+                schedulerSkippedCounter.increment();
                 log.warn("Could not acquire lock '{}'. Skipping renewal batch execution.", LOCK_NAME);
                 return;
             }
 
+            schedulerExecutionCounter.increment();
             renewExpiredSubscriptionsUseCase.execute(LocalDate.now(), batchSize);
         } catch (Exception e) {
             log.error("Unexpected error during renewal batch processing: {}", e.getMessage(), e);
@@ -58,6 +79,7 @@ public class RenewalScheduler {
                 lockManagerPort.releaseLock(LOCK_NAME);
             }
             Duration duration = Duration.between(start, Instant.now());
+            schedulerTimer.record(duration);
             log.info("Renewal batch ended. Total duration: {}ms", duration.toMillis());
         }
     }

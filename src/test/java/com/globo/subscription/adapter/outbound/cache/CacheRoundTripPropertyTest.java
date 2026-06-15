@@ -14,6 +14,8 @@ import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import net.jqwik.api.Provide;
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.globo.subscription.domain.entity.Plan;
@@ -41,7 +43,7 @@ class CacheRoundTripPropertyTest {
             @ForAll("arbitraryUuids") UUID userId,
             @ForAll("arbitrarySubscriptions") Subscription subscription) {
 
-        var cache = new CaffeineSubscriptionCacheAdapter(5, 10000);
+        var cache = new CaffeineSubscriptionCacheAdapter(5, 10000, new SimpleMeterRegistry());
 
         cache.putActiveSubscription(userId, subscription);
         Optional<Subscription> result = cache.getActiveSubscription(userId);
@@ -55,7 +57,7 @@ class CacheRoundTripPropertyTest {
             @ForAll("arbitraryUuids") UUID userId,
             @ForAll("arbitrarySubscriptions") Subscription subscription) {
 
-        var cache = new CaffeineSubscriptionCacheAdapter(5, 10000);
+        var cache = new CaffeineSubscriptionCacheAdapter(5, 10000, new SimpleMeterRegistry());
 
         cache.putActiveSubscription(userId, subscription);
         cache.evictActiveSubscription(userId);
@@ -68,7 +70,7 @@ class CacheRoundTripPropertyTest {
     void subscriptionCache_getWithoutPut_shouldReturnEmpty(
             @ForAll("arbitraryUuids") UUID userId) {
 
-        var cache = new CaffeineSubscriptionCacheAdapter(5, 10000);
+        var cache = new CaffeineSubscriptionCacheAdapter(5, 10000, new SimpleMeterRegistry());
 
         Optional<Subscription> result = cache.getActiveSubscription(userId);
 
@@ -81,7 +83,7 @@ class CacheRoundTripPropertyTest {
     void planCache_putAllThenGetAll_shouldReturnPlans(
             @ForAll("arbitraryPlanLists") List<Plan> plans) {
 
-        var cache = new CaffeinePlanCacheAdapter(60, 100);
+        var cache = new CaffeinePlanCacheAdapter(60, 100, new SimpleMeterRegistry());
 
         cache.putAllActivePlans(plans);
         Optional<List<Plan>> result = cache.getAllActivePlans();
@@ -94,7 +96,7 @@ class CacheRoundTripPropertyTest {
     void planCache_evictThenGetAll_shouldReturnEmpty(
             @ForAll("arbitraryPlanLists") List<Plan> plans) {
 
-        var cache = new CaffeinePlanCacheAdapter(60, 100);
+        var cache = new CaffeinePlanCacheAdapter(60, 100, new SimpleMeterRegistry());
 
         cache.putAllActivePlans(plans);
         cache.evictAllPlans();
@@ -105,7 +107,7 @@ class CacheRoundTripPropertyTest {
 
     @Property
     void planCache_getAllWithoutPut_shouldReturnEmpty() {
-        var cache = new CaffeinePlanCacheAdapter(60, 100);
+        var cache = new CaffeinePlanCacheAdapter(60, 100, new SimpleMeterRegistry());
 
         Optional<List<Plan>> result = cache.getAllActivePlans();
 

@@ -306,15 +306,15 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
 - [x] 11. Checkpoint — Scheduler, Cache, Events
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 12. Observability, Integration Tests e Documentation
-  - [ ] 12.1 Configure structured logging and Micrometer metrics
+- [x] 12. Observability, Integration Tests e Documentation
+  - [x] 12.1 Configure structured logging and Micrometer metrics
     - Configure structured JSON logging with fields: timestamp, level, logger, message, traceId (MDC), subscriptionId, userId
     - Configure log levels: DEBUG for cache, INFO for use cases, WARN for payment/lock failures, ERROR for unhandled exceptions
     - Expose Actuator endpoints: /actuator/health, /actuator/metrics, /actuator/info
     - Add Micrometer metrics: use case execution count/duration, payment outcomes, cache hit/miss ratio, renewal batch metrics
     - _Requirements: 9.1, 9.2, 9.3, 9.4_
 
-  - [ ] 12.2 Implement integration tests with Testcontainers
+  - [x] 12.2 Implement integration tests with Testcontainers
     - Create test configuration with @SpringBootTest, test profile, Testcontainers PostgreSQL
     - Test full lifecycle: create user → create subscription → renew (success) → cancel
     - Test payment failure lifecycle: create → renew (fail x3) → suspension
@@ -325,18 +325,18 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Configure integration tests to run on-demand (not every build) via Maven profile
     - _Requirements: 9.5, 9.8_
 
-  - [ ]* 12.3 Write unit tests for domain entities (specific examples)
+  - [x] 12.3 Write unit tests for domain entities (specific examples)
     - Create `SubscriptionTest.java` — specific state transitions with known inputs
     - Create `UserTest.java` — creation, validation
     - Create `MoneyTest.java` — edge cases (zero, boundary)
     - Create `PlanTest.java` — entity creation, validation, monthlyPrice consistency
     - _Requirements: 9.6_
 
-  - [ ] 12.4 Write ArchUnit architecture tests
+  - [x] 12.4 Write ArchUnit architecture tests
     - Create `ArchitectureTest.java` verifying: domain has no Spring/JPA imports, application has no adapter imports, outbound adapters implement port interfaces
     - _Requirements: 1.4, 1.5_
 
-  - [ ] 12.5 Create README.md with project documentation
+  - [x] 12.5 Create README.md with project documentation
     - Include build instructions (`./mvnw clean install`)
     - Include PostgreSQL setup (`docker compose up`)
     - Include application run instructions (`./mvnw spring-boot:run`)

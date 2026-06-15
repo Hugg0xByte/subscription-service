@@ -66,8 +66,7 @@ class EventPublicationPropertyTest {
     @EntityScan(basePackages = "com.globo.subscription.adapter.outbound.persistence.entity")
     @EnableJpaRepositories(basePackages = "com.globo.subscription.adapter.outbound.persistence.repository")
     @ComponentScan(basePackages = {
-            "com.globo.subscription.adapter.outbound.event",
-            "com.globo.subscription.adapter.outbound.persistence"
+            "com.globo.subscription.adapter.outbound.event"
     })
     static class EventTestConfig {
     }
@@ -103,6 +102,7 @@ class EventPublicationPropertyTest {
         props.put("server.port", "0");
 
         context = new SpringApplicationBuilder(EventTestConfig.class)
+                .web(org.springframework.boot.WebApplicationType.NONE)
                 .properties(props)
                 .run();
 

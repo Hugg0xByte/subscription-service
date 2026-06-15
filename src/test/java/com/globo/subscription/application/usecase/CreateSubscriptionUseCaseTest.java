@@ -28,6 +28,8 @@ import com.globo.subscription.domain.event.DomainEvent;
 import com.globo.subscription.domain.event.SubscriptionCreated;
 import com.globo.subscription.domain.vo.Money;
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -59,7 +61,7 @@ class CreateSubscriptionUseCaseTest {
     void setUp() {
         useCase = new CreateSubscriptionUseCase(
                 subscriptionRepositoryPort, planCachePort, planRepositoryPort,
-                subscriptionCachePort, eventPublisherPort);
+                subscriptionCachePort, eventPublisherPort, new SimpleMeterRegistry());
 
         userId = UUID.randomUUID();
         planId = UUID.randomUUID();

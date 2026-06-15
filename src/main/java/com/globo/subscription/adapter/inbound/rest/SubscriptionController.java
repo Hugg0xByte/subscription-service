@@ -1,5 +1,7 @@
 package com.globo.subscription.adapter.inbound.rest;
 
+import java.time.LocalDate;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,7 @@ import com.globo.subscription.application.port.PlanRepositoryPort;
 import com.globo.subscription.application.usecase.CancelSubscriptionUseCase;
 import com.globo.subscription.application.usecase.CreateSubscriptionUseCase;
 import com.globo.subscription.application.usecase.GetActiveSubscriptionUseCase;
+import com.globo.subscription.application.usecase.RenewExpiredSubscriptionsUseCase;
 import com.globo.subscription.domain.entity.Plan;
 import com.globo.subscription.domain.entity.Subscription;
 
@@ -36,17 +39,20 @@ public class SubscriptionController {
     private final CreateSubscriptionUseCase createSubscriptionUseCase;
     private final GetActiveSubscriptionUseCase getActiveSubscriptionUseCase;
     private final CancelSubscriptionUseCase cancelSubscriptionUseCase;
+    private final RenewExpiredSubscriptionsUseCase renewExpiredSubscriptionsUseCase;
     private final SubscriptionRestMapper subscriptionRestMapper;
     private final PlanRepositoryPort planRepositoryPort;
 
     public SubscriptionController(CreateSubscriptionUseCase createSubscriptionUseCase,
                                   GetActiveSubscriptionUseCase getActiveSubscriptionUseCase,
                                   CancelSubscriptionUseCase cancelSubscriptionUseCase,
+                                  RenewExpiredSubscriptionsUseCase renewExpiredSubscriptionsUseCase,
                                   SubscriptionRestMapper subscriptionRestMapper,
                                   PlanRepositoryPort planRepositoryPort) {
         this.createSubscriptionUseCase = createSubscriptionUseCase;
         this.getActiveSubscriptionUseCase = getActiveSubscriptionUseCase;
         this.cancelSubscriptionUseCase = cancelSubscriptionUseCase;
+        this.renewExpiredSubscriptionsUseCase = renewExpiredSubscriptionsUseCase;
         this.subscriptionRestMapper = subscriptionRestMapper;
         this.planRepositoryPort = planRepositoryPort;
     }
@@ -94,5 +100,24 @@ public class SubscriptionController {
     public ResponseEntity<Void> cancelSubscription(@PathVariable UUID id) {
         cancelSubscriptionUseCase.execute(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Manually triggers the renewal process for all subscriptions due for payment.
+     * Useful for testing and debugging. Processes subscriptions with expiration_date <= today.
+     *
+     * @param batchSize optional batch size (default: 100)
+     * @return 200 OK with confirmation that the process was triggered
+     */
+    @PostMapping("/renewals/trigger")
+    public ResponseEntity<Map<String, Object>> triggerRenewals(
+            @RequestParam(defaultValue = "100") int batchSize) {
+        renewExpiredSubscriptionsUseCase.execute(LocalDate.now(), batchSize);
+        return ResponseEntity.ok(Map.of(
+                "status", "triggered",
+                "date", LocalDate.now().toString(),
+                "batchSize", batchSize,
+                "message", "Renewal process executed. Check application logs for details."
+        ));
     }
 }
