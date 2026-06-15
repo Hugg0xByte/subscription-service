@@ -284,7 +284,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Ensure participation in same transaction as use case (atomicity guarantee)
     - _Requirements: 8.5, 8.6, 8.7_
 
-  - [ ]* 10.4 Write property test for event publication round-trip
+  - [x] 10.4 Write property test for event publication round-trip
     - **Property 8: Event publication round-trip**
     - **Validates: Requirements 8.8**
     - Create `EventPublicationPropertyTest.java` using jqwik + Testcontainers
