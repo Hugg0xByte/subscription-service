@@ -235,7 +235,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `RestMapperPropertyTest.java` using jqwik
     - Generate valid Subscription entities, verify mapped response preserves all exposed fields
 
-- [ ] 8. Payment Adapter — Mock Gateway e Resiliência
+- [x] 8. Payment Adapter — Mock Gateway e Resiliência
   - [x] 8.1 Implement MockPaymentGatewayAdapter with configurable outcomes
     - Create `MockPaymentGatewayAdapter.java` implementing PaymentGatewayPort
     - Configure success/failure/timeout ratios via application properties (default: 80%/15%/5%)
@@ -251,7 +251,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Expose Resilience4j metrics via Actuator
     - _Requirements: 6.3, 6.4, 6.5, 6.6, 6.7, 6.9_
 
-  - [ ]* 8.3 Write property test for idempotency key deterministic generation
+  - [x] 8.3 Write property test for idempotency key deterministic generation
     - **Property 11: Idempotency key deterministic generation**
     - **Validates: Requirements 6.8**
     - Create `IdempotencyKeyPropertyTest.java` using jqwik
