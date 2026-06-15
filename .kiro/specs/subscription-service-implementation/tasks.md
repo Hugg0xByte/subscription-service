@@ -306,7 +306,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
 - [x] 11. Checkpoint — Scheduler, Cache, Events
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 12. Observability, Integration Tests e Documentation
+- [x] 12. Observability, Integration Tests e Documentation
   - [x] 12.1 Configure structured logging and Micrometer metrics
     - Configure structured JSON logging with fields: timestamp, level, logger, message, traceId (MDC), subscriptionId, userId
     - Configure log levels: DEBUG for cache, INFO for use cases, WARN for payment/lock failures, ERROR for unhandled exceptions
@@ -336,7 +336,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `ArchitectureTest.java` verifying: domain has no Spring/JPA imports, application has no adapter imports, outbound adapters implement port interfaces
     - _Requirements: 1.4, 1.5_
 
-  - [ ] 12.5 Create README.md with project documentation
+  - [x] 12.5 Create README.md with project documentation
     - Include build instructions (`./mvnw clean install`)
     - Include PostgreSQL setup (`docker compose up`)
     - Include application run instructions (`./mvnw spring-boot:run`)
