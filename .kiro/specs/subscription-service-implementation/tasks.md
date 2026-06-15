@@ -277,7 +277,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Verify subscription cache: put→get returns subscription, evict→get returns empty
     - Verify plan cache: putAll→getAll returns plans, evict→getAll returns empty
 
-  - [ ] 10.3 Implement LocalEventPublisherAdapter (outbox pattern)
+  - [x] 10.3 Implement LocalEventPublisherAdapter (outbox pattern)
     - Create `LocalEventPublisherAdapter.java` implementing EventPublisherPort
     - Serialize domain event payload to JSON
     - Insert row in subscription_events table with published_at=NULL
