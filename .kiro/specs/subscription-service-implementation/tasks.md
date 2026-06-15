@@ -314,7 +314,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Add Micrometer metrics: use case execution count/duration, payment outcomes, cache hit/miss ratio, renewal batch metrics
     - _Requirements: 9.1, 9.2, 9.3, 9.4_
 
-  - [ ] 12.2 Implement integration tests with Testcontainers
+  - [x] 12.2 Implement integration tests with Testcontainers
     - Create test configuration with @SpringBootTest, test profile, Testcontainers PostgreSQL
     - Test full lifecycle: create user → create subscription → renew (success) → cancel
     - Test payment failure lifecycle: create → renew (fail x3) → suspension
