@@ -13,6 +13,7 @@ import java.util.UUID;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.globo.subscription.adapter.inbound.messaging.PaymentResultProcessor;
 import com.globo.subscription.application.dto.PaymentResultMessage;
 import com.globo.subscription.application.dto.PaymentResultMessage.PaymentStatus;
 import com.globo.subscription.application.port.EventPublisherPort;
@@ -44,6 +45,7 @@ class PaymentResultListenerTest {
     private EventPublisherPort eventPublisherPort;
     private SimpleMeterRegistry meterRegistry;
     private PaymentResultListener listener;
+    private PaymentResultProcessor paymentResultProcessor;
 
     private static final String PROCESSED_SUBSCRIPTION = "pagamento-processado-sub";
 
@@ -57,12 +59,17 @@ class PaymentResultListenerTest {
         eventPublisherPort = mock(EventPublisherPort.class);
         meterRegistry = new SimpleMeterRegistry();
 
-        listener = new PaymentResultListener(
-                pubSubTemplate,
-                objectMapper,
+        paymentResultProcessor = new PaymentResultProcessor(
                 subscriptionRepositoryPort,
                 subscriptionCachePort,
                 eventPublisherPort,
+                meterRegistry
+        );
+
+        listener = new PaymentResultListener(
+                pubSubTemplate,
+                objectMapper,
+                paymentResultProcessor,
                 PROCESSED_SUBSCRIPTION,
                 meterRegistry
         );

@@ -1,0 +1,58 @@
+spring:
+  config:
+    activate:
+      on-profile: cloud
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:5432/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+  cloud:
+    gcp:
+      project-id: ${GCP_PROJECT_ID}
+      sql:
+        enabled: false
+
+pubsub:
+  topic:
+    pendente-pagamento: pendente-de-pagamento
+    pagamento-processado: pagamento-processado
+    pendente-pagamento-dlq: pendente-de-pagamento-dlq
+    pagamento-processado-dlq: pagamento-processado-dlq
+  subscription:
+    pendente-pagamento: pendente-de-pagamento-sub
+    pagamento-processado: pagamento-processado-sub
+
+server:
+  port: 8080
+
+cache:
+  subscription:
+    ttl-minutes: 5
+    max-size: 10000
+  plan:
+    ttl-minutes: 60
+    max-size: 100
+
+scheduler:
+  renewal:
+    cron: "0 0 * * * *"
+    batch-size: 100
+
+payment:
+  mock:
+    approve-percentage: 80
+    reject-percentage: 15
+    timeout-percentage: 5
+    min-delay-ms: 100
+    max-delay-ms: 500

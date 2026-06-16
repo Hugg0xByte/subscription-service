@@ -3,6 +3,10 @@ spring:
     name: subscription-service
   profiles:
     active: local
+  cloud:
+    gcp:
+      sql:
+        enabled: false
 
 ---
 spring:

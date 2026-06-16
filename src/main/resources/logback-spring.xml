@@ -59,6 +59,13 @@
         </root>
     </springProfile>
 
+    <!-- Cloud profile: use console logging (JSON lib incompatible with Logback 1.5+) -->
+    <springProfile name="cloud">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
     <!-- Production profile: use JSON structured logging -->
     <springProfile name="prod">
         <root level="INFO">
