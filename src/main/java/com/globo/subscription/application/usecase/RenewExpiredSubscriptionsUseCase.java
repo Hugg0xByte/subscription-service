@@ -8,19 +8,16 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.globo.subscription.application.port.EventPublisherPort;
+import com.globo.subscription.application.dto.PaymentRequestMessage;
 import com.globo.subscription.application.port.LockManagerPort;
-import com.globo.subscription.application.port.PaymentGatewayPort;
-import com.globo.subscription.application.port.PaymentResult;
+import com.globo.subscription.application.port.MessagePublisherPort;
 import com.globo.subscription.application.port.SubscriptionCachePort;
 import com.globo.subscription.application.port.SubscriptionRepositoryPort;
-import com.globo.subscription.domain.entity.PaymentAttempt;
 import com.globo.subscription.domain.entity.Subscription;
-import com.globo.subscription.domain.enums.PaymentAttemptStatus;
-import com.globo.subscription.domain.event.DomainEvent;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -28,8 +25,9 @@ import io.micrometer.core.instrument.Timer;
 
 /**
  * Use case responsible for renewing expired subscriptions in batch.
- * Acquires a distributed lock, queries due subscriptions, processes payment for each,
- * updates entity state, persists changes, evicts cache, and publishes domain events.
+ * Acquires a distributed lock, queries due subscriptions, publishes a payment request
+ * message to the pending payment topic for each, marks the subscription as pending payment,
+ * persists changes, and evicts cache.
  * Individual subscription failures do not abort the batch.
  */
 @Service
@@ -41,39 +39,29 @@ public class RenewExpiredSubscriptionsUseCase {
     private static final Duration LOCK_TTL = Duration.ofMinutes(30);
 
     private final SubscriptionRepositoryPort subscriptionRepositoryPort;
-    private final PaymentGatewayPort paymentGatewayPort;
+    private final MessagePublisherPort messagePublisherPort;
     private final SubscriptionCachePort subscriptionCachePort;
-    private final EventPublisherPort eventPublisherPort;
     private final LockManagerPort lockManagerPort;
+    private final String pendingPaymentTopic;
     private final Timer renewalBatchTimer;
     private final Counter renewalBatchCounter;
-    private final Counter paymentApprovedCounter;
-    private final Counter paymentFailedCounter;
 
     public RenewExpiredSubscriptionsUseCase(SubscriptionRepositoryPort subscriptionRepositoryPort,
-                                            PaymentGatewayPort paymentGatewayPort,
+                                            MessagePublisherPort messagePublisherPort,
                                             SubscriptionCachePort subscriptionCachePort,
-                                            EventPublisherPort eventPublisherPort,
                                             LockManagerPort lockManagerPort,
+                                            @Value("${pubsub.topic.pendente-pagamento}") String pendingPaymentTopic,
                                             MeterRegistry meterRegistry) {
         this.subscriptionRepositoryPort = subscriptionRepositoryPort;
-        this.paymentGatewayPort = paymentGatewayPort;
+        this.messagePublisherPort = messagePublisherPort;
         this.subscriptionCachePort = subscriptionCachePort;
-        this.eventPublisherPort = eventPublisherPort;
         this.lockManagerPort = lockManagerPort;
+        this.pendingPaymentTopic = pendingPaymentTopic;
         this.renewalBatchTimer = Timer.builder("subscription.renewal.batch.duration")
                 .description("Duration of renewal batch execution")
                 .register(meterRegistry);
         this.renewalBatchCounter = Counter.builder("subscription.renewal.batch.count")
                 .description("Number of renewal batch executions")
-                .register(meterRegistry);
-        this.paymentApprovedCounter = Counter.builder("subscription.payment.outcome")
-                .tag("outcome", "approved")
-                .description("Number of approved payment attempts")
-                .register(meterRegistry);
-        this.paymentFailedCounter = Counter.builder("subscription.payment.outcome")
-                .tag("outcome", "failed")
-                .description("Number of failed payment attempts")
                 .register(meterRegistry);
     }
 
@@ -106,9 +94,10 @@ public class RenewExpiredSubscriptionsUseCase {
                     try {
                         processSubscriptionRenewal(subscription);
                         successes++;
-                    } catch (Exception e) {
+                    } catch (RuntimeException e) {
                         failures++;
-                        log.error("Failed to renew subscription {}: {}", subscription.getId(), e.getMessage(), e);
+                        log.error("Failed to publish payment request for subscription {}: {}",
+                                subscription.getId(), e.getMessage(), e);
                     }
                 }
 
@@ -122,51 +111,25 @@ public class RenewExpiredSubscriptionsUseCase {
     }
 
     private void processSubscriptionRenewal(Subscription subscription) {
-        // Build idempotency key: subscription:{subscriptionId}:billing-cycle:{expirationDate}
         String idempotencyKey = String.format("subscription:%s:billing-cycle:%s",
                 subscription.getId(), subscription.getExpirationDate());
 
-        // Create PaymentAttempt
-        PaymentAttempt paymentAttempt = new PaymentAttempt(
+        PaymentRequestMessage message = new PaymentRequestMessage(
                 UUID.randomUUID(),
                 subscription.getId(),
-                subscription.getPriceAtPurchase(),
-                PaymentAttemptStatus.PROCESSING,
+                subscription.getUserId(),
+                subscription.getPlanId(),
+                subscription.getPriceAtPurchase().amount(),
+                subscription.getPriceAtPurchase().currency(),
                 subscription.getFailedAttempts() + 1,
                 idempotencyKey,
-                null,   // providerTransactionId
-                null,   // errorCode
-                null,   // errorMessage
-                Instant.now(),
-                null    // processedAt
+                Instant.now()
         );
 
-        // Process payment via gateway
-        PaymentResult result = paymentGatewayPort.processPayment(paymentAttempt);
+        messagePublisherPort.publish(pendingPaymentTopic, message);
 
-        // Update subscription state based on payment result and record metrics
-        switch (result) {
-            case PaymentResult.Approved _ -> {
-                subscription.processSuccessfulPayment();
-                paymentApprovedCounter.increment();
-            }
-            case PaymentResult.Failed _ -> {
-                subscription.processFailedPayment();
-                paymentFailedCounter.increment();
-            }
-        }
-
-        // Persist updated subscription
+        subscription.markAsPendingPayment();
         subscriptionRepositoryPort.save(subscription);
-
-        // Evict cache for this user's active subscription
         subscriptionCachePort.evictActiveSubscription(subscription.getUserId());
-
-        // Publish all domain events registered on the entity
-        List<DomainEvent> events = subscription.getDomainEvents();
-        for (DomainEvent event : events) {
-            eventPublisherPort.publish(event);
-        }
-        subscription.clearDomainEvents();
     }
 }
