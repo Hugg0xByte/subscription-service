@@ -30,8 +30,20 @@ public interface SubscriptionJpaRepository extends JpaRepository<SubscriptionJpa
      * date is on or before the given date.
      */
     @Query(value = "SELECT * FROM subscriptions WHERE status IN ('ATIVA', 'PENDENTE_PAGAMENTO') " +
-            "AND expiration_date <= :date ORDER BY expiration_date ASC LIMIT :batchSize FOR UPDATE SKIP LOCKED",
+            "AND expiration_date <= :date AND cancel_requested_at IS NULL " +
+            "ORDER BY expiration_date ASC LIMIT :batchSize FOR UPDATE SKIP LOCKED",
             nativeQuery = true)
     List<SubscriptionJpaEntity> findSubscriptionsDueForRenewal(@Param("date") LocalDate date,
                                                                @Param("batchSize") int batchSize);
+
+    /**
+     * Finds subscriptions with pending cancellation whose expiration date has been reached.
+     * These should be transitioned to CANCELADA status.
+     */
+    @Query(value = "SELECT * FROM subscriptions WHERE status IN ('ATIVA', 'PENDENTE_PAGAMENTO') " +
+            "AND expiration_date <= :date AND cancel_requested_at IS NOT NULL " +
+            "ORDER BY expiration_date ASC LIMIT :batchSize FOR UPDATE SKIP LOCKED",
+            nativeQuery = true)
+    List<SubscriptionJpaEntity> findSubscriptionsDueForCancellation(@Param("date") LocalDate date,
+                                                                    @Param("batchSize") int batchSize);
 }

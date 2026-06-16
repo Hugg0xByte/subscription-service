@@ -61,6 +61,13 @@ public class JpaSubscriptionRepositoryAdapter implements SubscriptionRepositoryP
     }
 
     @Override
+    public List<Subscription> findSubscriptionsDueForCancellation(LocalDate date, int batchSize) {
+        return subscriptionJpaRepository.findSubscriptionsDueForCancellation(date, batchSize).stream()
+                .map(mapper::toDomainEntity)
+                .toList();
+    }
+
+    @Override
     public boolean existsActiveForUser(UUID userId) {
         return subscriptionJpaRepository.existsActiveForUser(userId);
     }

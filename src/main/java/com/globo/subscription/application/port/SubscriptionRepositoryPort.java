@@ -21,5 +21,7 @@ public interface SubscriptionRepositoryPort {
 
     List<Subscription> findSubscriptionsDueForRenewal(LocalDate date, int batchSize);
 
+    List<Subscription> findSubscriptionsDueForCancellation(LocalDate date, int batchSize);
+
     boolean existsActiveForUser(UUID userId);
 }

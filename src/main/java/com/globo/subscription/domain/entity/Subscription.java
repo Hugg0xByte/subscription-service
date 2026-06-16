@@ -146,6 +146,19 @@ public class Subscription {
     }
 
     /**
+     * Effectuates the cancellation when expiration date is reached.
+     * Transitions status to CANCELADA. Called by the scheduler when
+     * cancel_requested_at IS NOT NULL and expiration_date <= today.
+     *
+     * @throws IllegalStateException if subscription is already CANCELADA
+     */
+    public void effectuateCancellation() {
+        rejectIfCancelada();
+        this.status = SubscriptionStatus.CANCELADA;
+        this.updatedAt = Instant.now();
+    }
+
+    /**
      * Marks the subscription as pending payment (PENDENTE_PAGAMENTO).
      * Valid only when the current status is ATIVA or PENDENTE_PAGAMENTO.
      *
