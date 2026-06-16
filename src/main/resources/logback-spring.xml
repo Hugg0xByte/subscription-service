@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <springProperty scope="context" name="appName" source="spring.application.name" defaultValue="subscription-service"/>
+
+    <!-- Console appender for development (human-readable) -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - [traceId=%X{traceId}] [subscriptionId=%X{subscriptionId}] [userId=%X{userId}] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- JSON appender for structured logging (production) -->
+    <appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.contrib.json.classic.JsonLayout">
+            <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">
+                <prettyPrint>false</prettyPrint>
+            </jsonFormatter>
+            <timestampFormat>yyyy-MM-dd'T'HH:mm:ss.SSSZ</timestampFormat>
+            <appendLineSeparator>true</appendLineSeparator>
+        </encoder>
+    </appender>
+
+    <!-- Log levels per package -->
+    <!-- Cache adapters: DEBUG -->
+    <logger name="com.globo.subscription.adapter.outbound.cache" level="DEBUG"/>
+
+    <!-- Use cases: INFO -->
+    <logger name="com.globo.subscription.application.usecase" level="INFO"/>
+
+    <!-- Payment adapter: WARN (failures logged at WARN level) -->
+    <logger name="com.globo.subscription.adapter.outbound.payment" level="WARN"/>
+
+    <!-- Lock manager: WARN (lock acquisition failures) -->
+    <logger name="com.globo.subscription.adapter.outbound.lock" level="WARN"/>
+
+    <!-- Scheduler: INFO (batch processing logs) -->
+    <logger name="com.globo.subscription.adapter.inbound.scheduler" level="INFO"/>
+
+    <!-- REST controllers: INFO -->
+    <logger name="com.globo.subscription.adapter.inbound.rest" level="INFO"/>
+
+    <!-- Spring framework: WARN -->
+    <logger name="org.springframework" level="WARN"/>
+
+    <!-- Hibernate SQL: WARN (reduce noise) -->
+    <logger name="org.hibernate" level="WARN"/>
+
+    <!-- Liquibase: INFO -->
+    <logger name="liquibase" level="INFO"/>
+
+    <!-- Resilience4j: INFO -->
+    <logger name="io.github.resilience4j" level="INFO"/>
+
+    <!-- Local profile: use human-readable console output -->
+    <springProfile name="local">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!-- Cloud profile: use console logging (JSON lib incompatible with Logback 1.5+) -->
+    <springProfile name="cloud">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!-- Production profile: use JSON structured logging -->
+    <springProfile name="prod">
+        <root level="INFO">
+            <appender-ref ref="JSON"/>
+        </root>
+    </springProfile>
+
+    <!-- Test profile: minimal logging -->
+    <springProfile name="test">
+        <root level="WARN">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!-- Default (no profile): console output -->
+    <springProfile name="default">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+</configuration>

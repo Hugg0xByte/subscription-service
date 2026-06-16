@@ -27,35 +27,35 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Update `application-local.yml` with PostgreSQL connection settings matching the Docker credentials
     - _Requirements: 4.10, 4.12_
 
-- [ ] 2. Domain Layer — Entities, Value Objects, Enums e Events
-  - [ ] 2.1 Implement Money value object and Plan entity
+- [x] 2. Domain Layer — Entities, Value Objects, Enums e Events
+  - [x] 2.1 Implement Money value object and Plan entity
     - Create `Money.java` as Java record with non-negative validation in compact constructor
     - Create `Plan.java` as domain entity with fields: id (UUID), name (String), displayName (String), monthlyPrice (Money), active (boolean), createdAt (Instant)
     - Plan is persisted in the database and cached (not an enum)
     - _Requirements: 2.5, 2.6_
 
-  - [ ]* 2.2 Write property test for Money non-negativity invariant
+  - [x] 2.2 Write property test for Money non-negativity invariant
     - **Property 1: Money value object non-negativity invariant**
     - **Validates: Requirements 2.5**
     - Create `MoneyPropertyTest.java` using jqwik with @ForAll BigDecimal generation
     - Verify negative amounts throw IllegalArgumentException, non-negative amounts succeed and preserve value
 
-  - [ ] 2.3 Implement SubscriptionStatus, PaymentAttemptStatus enums
+  - [x] 2.3 Implement SubscriptionStatus, PaymentAttemptStatus enums
     - Create `SubscriptionStatus.java` enum with values: ATIVA, PENDENTE_PAGAMENTO, SUSPENSA, EXPIRADA, CANCELADA
     - Create `PaymentAttemptStatus.java` enum with values: PROCESSING, APPROVED, FAILED, TIMEOUT
     - _Requirements: 2.7, 2.8_
 
-  - [ ] 2.4 Implement domain events as sealed interface hierarchy
+  - [x] 2.4 Implement domain events as sealed interface hierarchy
     - Create `DomainEvent.java` sealed interface with subscriptionId(), occurredAt(), eventType() methods
     - Create record implementations: SubscriptionCreated, SubscriptionRenewed, SubscriptionCanceled, SubscriptionSuspended, PaymentFailed, PaymentApproved
     - _Requirements: 2.13_
 
-  - [ ] 2.5 Implement User entity
+  - [x] 2.5 Implement User entity
     - Create `User.java` with fields: id (UUID), name (String), email (String), active (boolean), createdAt (Instant), updatedAt (Instant)
     - Implement constructor validation for required fields
     - _Requirements: 2.1_
 
-  - [ ] 2.6 Implement Subscription entity with business methods
+  - [x] 2.6 Implement Subscription entity with business methods
     - Create `Subscription.java` with all fields as specified in design (planId UUID, priceAtPurchase Money instead of Plan enum)
     - Implement `processSuccessfulPayment()`: advance expirationDate +1 month, reset failedAttempts to 0, set status ATIVA, register PaymentApproved/SubscriptionRenewed event
     - Implement `processFailedPayment()`: increment failedAttempts, if reaches 3 set SUSPENSA + suspendedAt, else set PENDENTE_PAGAMENTO, register corresponding event
@@ -65,37 +65,37 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Enforce invariant: status CANCELADA rejects all state-changing operations
     - _Requirements: 2.2, 2.9, 2.10, 2.11, 2.12, 2.14, 2.15_
 
-  - [ ]* 2.7 Write property tests for Subscription state transitions
+  - [x] 2.7 Write property tests for Subscription state transitions
     - **Property 2: Subscription state transition enforcement**
     - **Validates: Requirements 2.9, 2.15**
     - Create `SubscriptionStatePropertyTest.java` using jqwik
     - Test that CANCELADA rejects all operations, non-eligible states reject renewal, valid states allow operations
 
-  - [ ]* 2.8 Write property tests for successful payment postconditions
+  - [x] 2.8 Write property tests for successful payment postconditions
     - **Property 3: Successful payment postconditions**
     - **Validates: Requirements 2.10, 2.14**
     - Verify expirationDate advances exactly 1 month, failedAttempts resets to 0, status becomes ATIVA, domain event registered
 
-  - [ ]* 2.9 Write property tests for failed payment with suspension threshold
+  - [x] 2.9 Write property tests for failed payment with suspension threshold
     - **Property 4: Failed payment postconditions with suspension threshold**
     - **Validates: Requirements 2.11, 2.14**
     - Verify failedAttempts increments, suspension at 3 failures, correct events registered
 
-  - [ ]* 2.10 Write property test for cancellation request preserving status
+  - [x] 2.10 Write property test for cancellation request preserving status
     - **Property 5: Cancellation request preserves status**
     - **Validates: Requirements 2.12**
     - Verify cancelRequestedAt is set but status remains unchanged
 
-  - [ ] 2.11 Implement PaymentMethod and PaymentAttempt entities
+  - [x] 2.11 Implement PaymentMethod and PaymentAttempt entities
     - Create `PaymentMethod.java` with fields: id, userId, provider, token, active, createdAt, updatedAt
     - Create `PaymentAttempt.java` with fields: id, subscriptionId, amount (Money), status, attemptNumber, idempotencyKey, providerTransactionId, errorCode, errorMessage, createdAt, processedAt
     - _Requirements: 2.3, 2.4_
 
-- [ ] 3. Checkpoint — Domain Layer
+- [x] 3. Checkpoint — Domain Layer
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 4. Application Layer — Use Cases e Ports
-  - [ ] 4.1 Define port interfaces
+- [x] 4. Application Layer — Use Cases e Ports
+  - [x] 4.1 Define port interfaces
     - Create `SubscriptionRepositoryPort.java` with methods: save, findById, findActiveByUserId, findSubscriptionsDueForRenewal, existsActiveForUser
     - Create `UserRepositoryPort.java` with methods: save, findById, findByEmail
     - Create `PaymentGatewayPort.java` with processPayment returning PaymentResult (sealed interface)
@@ -106,7 +106,7 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `LockManagerPort.java` with methods: acquireLock, releaseLock
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8_
 
-  - [ ] 4.2 Implement domain-specific exceptions
+  - [x] 4.2 Implement domain-specific exceptions
     - Create `DomainException.java` abstract base class with errorCode field
     - Create `ActiveSubscriptionExistsException.java`
     - Create `EmailAlreadyExistsException.java`
@@ -115,14 +115,14 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `UserNotFoundException.java`
     - _Requirements: 3.12, 3.13_
 
-  - [ ] 4.3 Implement CreateUserUseCase
+  - [x] 4.3 Implement CreateUserUseCase
     - Validate email uniqueness via UserRepositoryPort.findByEmail
     - If email exists, throw EmailAlreadyExistsException
     - Create User entity and persist via UserRepositoryPort.save
     - Annotate with @Service and @Transactional
     - _Requirements: 3.11_
 
-  - [ ] 4.4 Implement CreateSubscriptionUseCase
+  - [x] 4.4 Implement CreateSubscriptionUseCase
     - Check existsActiveForUser via SubscriptionRepositoryPort
     - If active subscription exists, throw ActiveSubscriptionExistsException
     - Retrieve Plan via PlanCachePort (on cache miss, query PlanRepositoryPort and populate cache)
@@ -130,26 +130,26 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Persist, evict subscription cache, publish SubscriptionCreated event
     - _Requirements: 3.9, 3.14_
 
-  - [ ] 4.5 Implement RenewExpiredSubscriptionsUseCase
+  - [x] 4.5 Implement RenewExpiredSubscriptionsUseCase
     - Acquire lock via LockManagerPort, abort if not acquired
     - Query due subscriptions via findSubscriptionsDueForRenewal
     - For each subscription: process payment, update entity state, persist, evict cache, publish event
     - Handle individual failures without aborting batch
     - _Requirements: 3.8, 3.13, 3.14_
 
-  - [ ] 4.6 Implement CancelSubscriptionUseCase
+  - [x] 4.6 Implement CancelSubscriptionUseCase
     - Find subscription by ID, throw SubscriptionNotFoundException if not found
     - Call requestCancellation() on domain entity
     - Persist, evict cache, publish domain event
     - _Requirements: 3.9_
 
-  - [ ] 4.7 Implement GetActiveSubscriptionUseCase
+  - [x] 4.7 Implement GetActiveSubscriptionUseCase
     - Check cache via SubscriptionCachePort.getActiveSubscription
     - On cache miss, query SubscriptionRepositoryPort.findActiveByUserId
     - Populate cache on miss, return result
     - _Requirements: 3.10_
 
-  - [ ]* 4.8 Write unit tests for all use cases with mocked ports
+  - [x] 4.8 Write unit tests for all use cases with mocked ports
     - Create `CreateUserUseCaseTest.java` — happy path, email already exists
     - Create `CreateSubscriptionUseCaseTest.java` — happy path, active subscription exists
     - Create `RenewExpiredSubscriptionsUseCaseTest.java` — lock acquired + mixed results, lock not acquired
@@ -160,8 +160,8 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
 - [ ] 5. Checkpoint — Application Layer
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 6. Persistence Adapter — JPA e PostgreSQL
-  - [ ] 6.1 Create Liquibase changelog scripts
+- [x] 6. Persistence Adapter — JPA e PostgreSQL
+  - [x] 6.1 Create Liquibase changelog scripts
     - Create `db.changelog-master.yaml` master changelog in `src/main/resources/db/changelog/`
     - Create `001-create-users-table.sql` in SQL format with `--liquibase formatted sql` header
     - Create `002-create-plans-and-subscriptions-tables.sql` with plans table, seed data (BASICO R$19.90, PREMIUM R$39.90, FAMILIA R$59.90), subscriptions table with plan_id FK, price_at_purchase, partial unique index and performance index
@@ -171,15 +171,15 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Place SQL changelogs in `src/main/resources/db/changelog/changes/`
     - _Requirements: 4.5, 4.6, 4.7, 4.8, 4.9_
 
-  - [ ] 6.2 Create JPA entity classes with mappers
+  - [x] 6.2 Create JPA entity classes with mappers (MapStruct)
     - Create `SubscriptionJpaEntity.java` with @Entity, @Table, @Version annotations (planId UUID, priceAtPurchase, currencyAtPurchase)
     - Create `UserJpaEntity.java`, `PlanJpaEntity.java`, `PaymentMethodJpaEntity.java`, `PaymentAttemptJpaEntity.java`, `SubscriptionEventJpaEntity.java`
-    - Create `SubscriptionPersistenceMapper.java` (domain ↔ JPA entity conversion)
-    - Create `UserPersistenceMapper.java`, `PlanPersistenceMapper.java`
+    - Create `SubscriptionPersistenceMapper.java`, `UserPersistenceMapper.java`, `PlanPersistenceMapper.java` as MapStruct `@Mapper(componentModel = "spring")` interfaces
+    - Money value object decomposition handled via `@Mapping(expression=...)` (toJpaEntity) and `default` methods (toDomainEntity)
     - Ensure JPA annotations do NOT leak to domain layer
     - _Requirements: 4.3, 4.4, 4.9_
 
-  - [ ] 6.3 Implement JPA repository adapters
+  - [x] 6.3 Implement JPA repository adapters
     - Create `SubscriptionJpaRepository.java` (Spring Data interface)
     - Create `UserJpaRepository.java` (Spring Data interface)
     - Create `PlanJpaRepository.java` (Spring Data interface)
@@ -189,20 +189,20 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Implement `findSubscriptionsDueForRenewal` with `FOR UPDATE SKIP LOCKED` query
     - _Requirements: 4.1, 4.2, 4.11_
 
-  - [ ]* 6.4 Write property test for Subscription serialization round-trip
+  - [x] 6.4 Write property test for Subscription serialization round-trip
     - **Property 6: Subscription serialization round-trip**
     - **Validates: Requirements 2.16**
     - Create `SubscriptionSerializationPropertyTest.java` using jqwik
     - Generate arbitrary Subscription states, verify domain→JPA→domain preserves all fields
 
-  - [ ]* 6.5 Write property test for persistence adapter round-trip
+  - [x] 6.5 Write property test for persistence adapter round-trip
     - **Property 7: Persistence adapter round-trip**
     - **Validates: Requirements 4.13**
     - Create `PersistenceRoundTripPropertyTest.java` using jqwik + Testcontainers
     - Persist entities, retrieve by ID, verify field equality
 
-- [ ] 7. REST API Adapter — Controllers e DTOs
-  - [ ] 7.1 Create request/response DTOs with validation
+- [x] 7. REST API Adapter — Controllers e DTOs
+  - [x] 7.1 Create request/response DTOs with validation
     - Create `CreateSubscriptionRequest.java` record with @NotNull annotations (userId UUID, planId UUID)
     - Create `CreateUserRequest.java` record with @NotBlank, @Email annotations
     - Create `SubscriptionResponse.java` record (no version or internal IDs of related entities exposed, includes plan name and price)
@@ -210,38 +210,40 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Create `ErrorResponse.java` record
     - _Requirements: 5.3, 5.4_
 
-  - [ ] 7.2 Implement REST mappers
-    - Create `SubscriptionRestMapper.java` (domain entity → response DTO, request → use case input)
-    - Create `UserRestMapper.java`
+  - [x] 7.2 Implement REST mappers (MapStruct)
+    - Create `SubscriptionRestMapper.java` as MapStruct `@Mapper(componentModel = "spring")` interface (domain entity → SubscriptionResponse DTO)
+    - Create `UserRestMapper.java` as MapStruct `@Mapper(componentModel = "spring")` interface (domain entity → UserResponse DTO)
+    - Use `@Mapping(expression=...)` for Money → BigDecimal/String and status enum → String conversions where needed
+    - Use `default` methods for mappings that require constructor-based domain objects
     - _Requirements: 5.10_
 
-  - [ ] 7.3 Implement controllers and global exception handler
+  - [x] 7.3 Implement controllers and global exception handler
     - Create `SubscriptionController.java` with endpoints: POST /api/v1/subscriptions, GET /api/v1/subscriptions/active, DELETE /api/v1/subscriptions/{id}/cancel
     - Create `UserController.java` with endpoint: POST /api/v1/users
     - Create `GlobalExceptionHandler.java` @RestControllerAdvice mapping all exceptions to correct HTTP status codes
     - _Requirements: 5.1, 5.2, 5.5, 5.6, 5.7, 5.8, 5.9, 5.11_
 
-  - [ ]* 7.4 Write property test for DTO validation
+  - [x] 7.4 Write property test for DTO validation
     - **Property 9: DTO validation rejects invalid input**
     - **Validates: Requirements 5.3**
     - Create `DtoValidationPropertyTest.java` using jqwik
     - Generate DTOs with invalid fields, verify constraint violations produced
 
-  - [ ]* 7.5 Write property test for REST mapper field preservation
+  - [x] 7.5 Write property test for REST mapper field preservation
     - **Property 10: REST mapper field preservation**
     - **Validates: Requirements 5.10**
     - Create `RestMapperPropertyTest.java` using jqwik
     - Generate valid Subscription entities, verify mapped response preserves all exposed fields
 
-- [ ] 8. Payment Adapter — Mock Gateway e Resiliência
-  - [ ] 8.1 Implement MockPaymentGatewayAdapter with configurable outcomes
+- [x] 8. Payment Adapter — Mock Gateway e Resiliência
+  - [x] 8.1 Implement MockPaymentGatewayAdapter with configurable outcomes
     - Create `MockPaymentGatewayAdapter.java` implementing PaymentGatewayPort
     - Configure success/failure/timeout ratios via application properties (default: 80%/15%/5%)
     - Generate idempotency key in format `subscription:{subscriptionId}:billing-cycle:{expirationDate}`
     - Simulate processing delay for realistic behavior
     - _Requirements: 6.1, 6.2, 6.8, 6.10_
 
-  - [ ] 8.2 Configure Resilience4j circuit breaker, retry, and timeout
+  - [x] 8.2 Configure Resilience4j circuit breaker, retry, and timeout
     - Configure CircuitBreaker: open after 5 consecutive failures
     - Configure Retry: max 3 attempts, exponential backoff (1s, 2s, 4s)
     - Configure Timeout: 10 seconds per request
@@ -249,17 +251,17 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Expose Resilience4j metrics via Actuator
     - _Requirements: 6.3, 6.4, 6.5, 6.6, 6.7, 6.9_
 
-  - [ ]* 8.3 Write property test for idempotency key deterministic generation
+  - [x] 8.3 Write property test for idempotency key deterministic generation
     - **Property 11: Idempotency key deterministic generation**
     - **Validates: Requirements 6.8**
     - Create `IdempotencyKeyPropertyTest.java` using jqwik
     - Verify format is `subscription:{id}:billing-cycle:{date}` and same inputs always produce same output
 
-- [ ] 9. Checkpoint — Adapters
+- [x] 9. Checkpoint — Adapters
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 10. Scheduler, Cache e Event Publisher
-  - [ ] 10.1 Implement CaffeineSubscriptionCacheAdapter and CaffeinePlanCacheAdapter
+- [x] 10. Scheduler, Cache e Event Publisher
+  - [x] 10.1 Implement CaffeineSubscriptionCacheAdapter and CaffeinePlanCacheAdapter
     - Create `CaffeineSubscriptionCacheAdapter.java` implementing SubscriptionCachePort
     - Configure Caffeine with TTL 5 minutes (configurable) and max 10,000 entries for subscriptions
     - Implement getActiveSubscription (cache hit returns without DB query), putActiveSubscription, evictActiveSubscription
@@ -268,32 +270,32 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Implement getAllActivePlans, putAllActivePlans, evictAllPlans
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
 
-  - [ ]* 10.2 Write property test for cache put-get-evict round-trip
+  - [x] 10.2 Write property test for cache put-get-evict round-trip
     - **Property 12: Cache put-get-evict round-trip**
     - **Validates: Requirements 8.3, 8.4, 8.5, 8.6**
     - Create `CacheRoundTripPropertyTest.java` using jqwik
     - Verify subscription cache: put→get returns subscription, evict→get returns empty
     - Verify plan cache: putAll→getAll returns plans, evict→getAll returns empty
 
-  - [ ] 10.3 Implement LocalEventPublisherAdapter (outbox pattern)
+  - [x] 10.3 Implement LocalEventPublisherAdapter (outbox pattern)
     - Create `LocalEventPublisherAdapter.java` implementing EventPublisherPort
     - Serialize domain event payload to JSON
     - Insert row in subscription_events table with published_at=NULL
     - Ensure participation in same transaction as use case (atomicity guarantee)
     - _Requirements: 8.5, 8.6, 8.7_
 
-  - [ ]* 10.4 Write property test for event publication round-trip
+  - [x] 10.4 Write property test for event publication round-trip
     - **Property 8: Event publication round-trip**
     - **Validates: Requirements 8.8**
     - Create `EventPublicationPropertyTest.java` using jqwik + Testcontainers
     - Publish event, query subscription_events, verify matching subscription_id, event_type, payload
 
-  - [ ] 10.5 Implement InMemoryLockManagerAdapter
+  - [x] 10.5 Implement InMemoryLockManagerAdapter
     - Create `InMemoryLockManagerAdapter.java` implementing LockManagerPort
     - Use ReentrantLock or AtomicBoolean for single-instance local locking
     - _Requirements: 7.8_
 
-  - [ ] 10.6 Implement RenewalScheduler
+  - [x] 10.6 Implement RenewalScheduler
     - Create `RenewalScheduler.java` with @Scheduled and configurable cron (default: every hour)
     - Acquire lock, delegate to RenewExpiredSubscriptionsUseCase, release lock in finally block
     - Process in configurable batch sizes (default: 100)
@@ -301,18 +303,18 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Log INFO: batch start, subscriptions found, successes, failures, duration
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.9_
 
-- [ ] 11. Checkpoint — Scheduler, Cache, Events
+- [x] 11. Checkpoint — Scheduler, Cache, Events
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 12. Observability, Integration Tests e Documentation
-  - [ ] 12.1 Configure structured logging and Micrometer metrics
+- [x] 12. Observability, Integration Tests e Documentation
+  - [x] 12.1 Configure structured logging and Micrometer metrics
     - Configure structured JSON logging with fields: timestamp, level, logger, message, traceId (MDC), subscriptionId, userId
     - Configure log levels: DEBUG for cache, INFO for use cases, WARN for payment/lock failures, ERROR for unhandled exceptions
     - Expose Actuator endpoints: /actuator/health, /actuator/metrics, /actuator/info
     - Add Micrometer metrics: use case execution count/duration, payment outcomes, cache hit/miss ratio, renewal batch metrics
     - _Requirements: 9.1, 9.2, 9.3, 9.4_
 
-  - [ ] 12.2 Implement integration tests with Testcontainers
+  - [x] 12.2 Implement integration tests with Testcontainers
     - Create test configuration with @SpringBootTest, test profile, Testcontainers PostgreSQL
     - Test full lifecycle: create user → create subscription → renew (success) → cancel
     - Test payment failure lifecycle: create → renew (fail x3) → suspension
@@ -323,18 +325,18 @@ Implementação faseada do Sistema de Gestão de Assinaturas em Java 25 com Spri
     - Configure integration tests to run on-demand (not every build) via Maven profile
     - _Requirements: 9.5, 9.8_
 
-  - [ ]* 12.3 Write unit tests for domain entities (specific examples)
+  - [x] 12.3 Write unit tests for domain entities (specific examples)
     - Create `SubscriptionTest.java` — specific state transitions with known inputs
     - Create `UserTest.java` — creation, validation
     - Create `MoneyTest.java` — edge cases (zero, boundary)
     - Create `PlanTest.java` — entity creation, validation, monthlyPrice consistency
     - _Requirements: 9.6_
 
-  - [ ] 12.4 Write ArchUnit architecture tests
+  - [x] 12.4 Write ArchUnit architecture tests
     - Create `ArchitectureTest.java` verifying: domain has no Spring/JPA imports, application has no adapter imports, outbound adapters implement port interfaces
     - _Requirements: 1.4, 1.5_
 
-  - [ ] 12.5 Create README.md with project documentation
+  - [x] 12.5 Create README.md with project documentation
     - Include build instructions (`./mvnw clean install`)
     - Include PostgreSQL setup (`docker compose up`)
     - Include application run instructions (`./mvnw spring-boot:run`)

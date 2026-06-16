@@ -24,11 +24,13 @@
         <maven.compiler.release>25</maven.compiler.release>
 
         <!-- Dependency versions -->
+        <mapstruct.version>1.6.3</mapstruct.version>
         <caffeine.version>3.2.0</caffeine.version>
         <resilience4j.version>2.3.0</resilience4j.version>
         <jqwik.version>1.9.2</jqwik.version>
+        <spring-cloud-gcp.version>6.5.0</spring-cloud-gcp.version>
         <testcontainers.version>1.20.6</testcontainers.version>
-        <archunit.version>1.4.0</archunit.version>
+        <archunit.version>1.4.2</archunit.version>
         <jacoco.version>0.8.13</jacoco.version>
     </properties>
 
@@ -76,6 +78,54 @@
             <version>${resilience4j.version}</version>
         </dependency>
 
+        <!-- Structured JSON Logging -->
+        <dependency>
+            <groupId>ch.qos.logback.contrib</groupId>
+            <artifactId>logback-json-classic</artifactId>
+            <version>0.1.5</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback.contrib</groupId>
+            <artifactId>logback-jackson</artifactId>
+            <version>0.1.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
+        <!-- Micrometer Prometheus (optional metrics export) -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
+        <!-- Spring AOP (required for @Timed aspect) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
+        <!-- Google Cloud Pub/Sub -->
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>spring-cloud-gcp-starter-pubsub</artifactId>
+            <version>${spring-cloud-gcp.version}</version>
+        </dependency>
+
+        <!-- Spring Retry -->
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
+        </dependency>
+
+        <!-- MapStruct -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -105,6 +155,14 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Testcontainers GCloud (Pub/Sub emulator) -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>gcloud</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- ArchUnit -->
         <dependency>
             <groupId>com.tngtech.archunit</groupId>
@@ -127,9 +185,17 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
                     <release>${maven.compiler.release}</release>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${mapstruct.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <compilerArgs>
+                        <arg>-Amapstruct.defaultComponentModel=spring</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
 
@@ -146,6 +212,7 @@
                         <exclude>**/*IntegrationTest.java</exclude>
                         <exclude>**/*IT.java</exclude>
                     </excludes>
+                    <excludedGroups>integration</excludedGroups>
                 </configuration>
             </plugin>
 
