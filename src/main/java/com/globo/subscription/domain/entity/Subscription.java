@@ -146,6 +146,22 @@ public class Subscription {
     }
 
     /**
+     * Marks the subscription as pending payment (PENDENTE_PAGAMENTO).
+     * Valid only when the current status is ATIVA or PENDENTE_PAGAMENTO.
+     *
+     * @throws IllegalStateException if subscription is CANCELADA or not eligible for this transition
+     */
+    public void markAsPendingPayment() {
+        rejectIfCancelada();
+        if (this.status != SubscriptionStatus.ATIVA && this.status != SubscriptionStatus.PENDENTE_PAGAMENTO) {
+            throw new IllegalStateException(
+                    "Cannot mark as pending payment. Current status: " + this.status);
+        }
+        this.status = SubscriptionStatus.PENDENTE_PAGAMENTO;
+        this.updatedAt = Instant.now();
+    }
+
+    /**
      * Checks if the subscription is eligible for renewal.
      * A subscription is eligible if its status is ATIVA or PENDENTE_PAGAMENTO.
      *

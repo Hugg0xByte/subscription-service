@@ -14,16 +14,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.globo.subscription.application.port.EventPublisherPort;
+import com.globo.subscription.application.dto.PaymentRequestMessage;
 import com.globo.subscription.application.port.LockManagerPort;
-import com.globo.subscription.application.port.PaymentGatewayPort;
-import com.globo.subscription.application.port.PaymentResult;
+import com.globo.subscription.application.port.MessagePublisherPort;
 import com.globo.subscription.application.port.SubscriptionCachePort;
 import com.globo.subscription.application.port.SubscriptionRepositoryPort;
-import com.globo.subscription.domain.entity.PaymentAttempt;
 import com.globo.subscription.domain.entity.Subscription;
 import com.globo.subscription.domain.enums.SubscriptionStatus;
-import com.globo.subscription.domain.event.DomainEvent;
 import com.globo.subscription.domain.vo.Money;
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -32,6 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -43,27 +41,28 @@ class RenewExpiredSubscriptionsUseCaseTest {
     @Mock
     private SubscriptionRepositoryPort subscriptionRepositoryPort;
     @Mock
-    private PaymentGatewayPort paymentGatewayPort;
+    private MessagePublisherPort messagePublisherPort;
     @Mock
     private SubscriptionCachePort subscriptionCachePort;
     @Mock
-    private EventPublisherPort eventPublisherPort;
-    @Mock
     private LockManagerPort lockManagerPort;
+
+    private static final String PENDING_PAYMENT_TOPIC = "pendente-de-pagamento";
 
     private RenewExpiredSubscriptionsUseCase useCase;
 
     @BeforeEach
     void setUp() {
         useCase = new RenewExpiredSubscriptionsUseCase(
-                subscriptionRepositoryPort, paymentGatewayPort,
-                subscriptionCachePort, eventPublisherPort, lockManagerPort,
+                subscriptionRepositoryPort, messagePublisherPort,
+                subscriptionCachePort, lockManagerPort,
+                PENDING_PAYMENT_TOPIC,
                 new SimpleMeterRegistry());
     }
 
     @Test
-    @DisplayName("Should process renewals when lock is acquired with mixed payment results")
-    void shouldProcessRenewalsWithMixedResults() {
+    @DisplayName("Should publish payment request messages and mark subscriptions as pending payment")
+    void shouldPublishMessagesAndMarkAsPendingPayment() {
         // Given
         LocalDate today = LocalDate.now();
         int batchSize = 100;
@@ -75,19 +74,13 @@ class RenewExpiredSubscriptionsUseCaseTest {
         when(subscriptionRepositoryPort.findSubscriptionsDueForRenewal(today, batchSize))
                 .thenReturn(List.of(sub1, sub2));
 
-        // First subscription: payment approved
-        // Second subscription: payment failed
-        when(paymentGatewayPort.processPayment(any(PaymentAttempt.class)))
-                .thenReturn(new PaymentResult.Approved("txn-001"))
-                .thenReturn(new PaymentResult.Failed("DECLINED", "Insufficient funds"));
-
         // When
         useCase.execute(today, batchSize);
 
         // Then
+        verify(messagePublisherPort, times(2)).publish(eq(PENDING_PAYMENT_TOPIC), any(PaymentRequestMessage.class));
         verify(subscriptionRepositoryPort, times(2)).save(any(Subscription.class));
         verify(subscriptionCachePort, times(2)).evictActiveSubscription(any(UUID.class));
-        verify(eventPublisherPort, times(3)).publish(any(DomainEvent.class)); // 2 events for success (PaymentApproved+Renewed), 1 for failure (PaymentFailed)
         verify(lockManagerPort).releaseLock(anyString());
     }
 
@@ -104,14 +97,13 @@ class RenewExpiredSubscriptionsUseCaseTest {
 
         // Then
         verify(subscriptionRepositoryPort, never()).findSubscriptionsDueForRenewal(any(), anyInt());
-        verify(paymentGatewayPort, never()).processPayment(any());
+        verify(messagePublisherPort, never()).publish(anyString(), any());
         verify(subscriptionRepositoryPort, never()).save(any());
-        verify(eventPublisherPort, never()).publish(any());
     }
 
     @Test
-    @DisplayName("Should continue processing batch when individual subscription fails")
-    void shouldContinueBatchOnIndividualFailure() {
+    @DisplayName("Should continue processing batch when publish fails for individual subscription")
+    void shouldContinueBatchOnPublishFailure() {
         // Given
         LocalDate today = LocalDate.now();
         int batchSize = 100;
@@ -123,17 +115,18 @@ class RenewExpiredSubscriptionsUseCaseTest {
         when(subscriptionRepositoryPort.findSubscriptionsDueForRenewal(today, batchSize))
                 .thenReturn(List.of(sub1, sub2));
 
-        // First subscription: payment gateway throws exception
-        // Second subscription: payment approved
-        when(paymentGatewayPort.processPayment(any(PaymentAttempt.class)))
-                .thenThrow(new RuntimeException("Gateway timeout"))
-                .thenReturn(new PaymentResult.Approved("txn-002"));
+        // First subscription: publish throws exception
+        // Second subscription: publish succeeds
+        doThrow(new RuntimeException("Pub/Sub unavailable"))
+                .doNothing()
+                .when(messagePublisherPort).publish(eq(PENDING_PAYMENT_TOPIC), any(PaymentRequestMessage.class));
 
         // When
         useCase.execute(today, batchSize);
 
         // Then - second subscription should still be processed
         verify(subscriptionRepositoryPort, times(1)).save(any(Subscription.class));
+        verify(subscriptionCachePort, times(1)).evictActiveSubscription(any(UUID.class));
         verify(lockManagerPort).releaseLock(anyString());
     }
 

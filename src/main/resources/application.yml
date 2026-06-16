@@ -23,6 +23,24 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
+  cloud:
+    gcp:
+      project-id: local-project
+      credentials:
+        enabled: false
+      pubsub:
+        emulator-host: ${PUBSUB_EMULATOR_HOST:localhost:8085}
+        project-id: local-project
+
+pubsub:
+  topic:
+    pendente-pagamento: pendente-de-pagamento
+    pagamento-processado: pagamento-processado
+    pendente-pagamento-dlq: pendente-de-pagamento-dlq
+    pagamento-processado-dlq: pagamento-processado-dlq
+  subscription:
+    pendente-pagamento: pendente-de-pagamento-sub
+    pagamento-processado: pagamento-processado-sub
 
 server:
   port: 8080

@@ -28,6 +28,7 @@
         <caffeine.version>3.2.0</caffeine.version>
         <resilience4j.version>2.3.0</resilience4j.version>
         <jqwik.version>1.9.2</jqwik.version>
+        <spring-cloud-gcp.version>6.5.0</spring-cloud-gcp.version>
         <testcontainers.version>1.20.6</testcontainers.version>
         <archunit.version>1.4.2</archunit.version>
         <jacoco.version>0.8.13</jacoco.version>
@@ -105,6 +106,19 @@
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
 
+        <!-- Google Cloud Pub/Sub -->
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>spring-cloud-gcp-starter-pubsub</artifactId>
+            <version>${spring-cloud-gcp.version}</version>
+        </dependency>
+
+        <!-- Spring Retry -->
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
+        </dependency>
+
         <!-- MapStruct -->
         <dependency>
             <groupId>org.mapstruct</groupId>
@@ -137,6 +151,14 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Testcontainers GCloud (Pub/Sub emulator) -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>gcloud</artifactId>
             <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
