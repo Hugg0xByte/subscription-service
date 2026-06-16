@@ -9,6 +9,7 @@ import java.util.UUID;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.globo.subscription.adapter.inbound.messaging.PaymentResultProcessor;
 import com.globo.subscription.application.dto.PaymentResultMessage;
 import com.globo.subscription.application.port.EventPublisherPort;
 import com.globo.subscription.application.port.SubscriptionCachePort;
@@ -87,12 +88,14 @@ class PaymentResultListenerIdempotencyPropertyTest {
         when(subscriptionRepositoryPort.save(any(Subscription.class)))
                 .thenReturn(subscription);
 
+        PaymentResultProcessor paymentResultProcessor = new PaymentResultProcessor(
+                subscriptionRepositoryPort, subscriptionCachePort, eventPublisherPort, meterRegistry
+        );
+
         PaymentResultListener listener = new PaymentResultListener(
                 pubSubTemplate,
                 objectMapper,
-                subscriptionRepositoryPort,
-                subscriptionCachePort,
-                eventPublisherPort,
+                paymentResultProcessor,
                 "pagamento-processado-sub",
                 meterRegistry
         );

@@ -21,6 +21,7 @@ import com.google.cloud.spring.pubsub.support.BasicAcknowledgeablePubsubMessage;
 import com.google.protobuf.ByteString;
 import com.google.pubsub.v1.PubsubMessage;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import com.globo.subscription.adapter.inbound.messaging.PaymentResultProcessor;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
 import net.jqwik.api.Combinators;
@@ -67,9 +68,12 @@ class PaymentResultListenerSideEffectsPropertyTest {
         when(subscriptionRepositoryPort.save(any(Subscription.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
+        PaymentResultProcessor paymentResultProcessor = new PaymentResultProcessor(
+                subscriptionRepositoryPort, subscriptionCachePort, eventPublisherPort, meterRegistry
+        );
+
         PaymentResultListener listener = new PaymentResultListener(
-                pubSubTemplate, objectMapper, subscriptionRepositoryPort,
-                subscriptionCachePort, eventPublisherPort,
+                pubSubTemplate, objectMapper, paymentResultProcessor,
                 "pagamento-processado-sub", meterRegistry
         );
 
@@ -112,9 +116,12 @@ class PaymentResultListenerSideEffectsPropertyTest {
         when(subscriptionRepositoryPort.save(any(Subscription.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
+        PaymentResultProcessor paymentResultProcessor = new PaymentResultProcessor(
+                subscriptionRepositoryPort, subscriptionCachePort, eventPublisherPort, meterRegistry
+        );
+
         PaymentResultListener listener = new PaymentResultListener(
-                pubSubTemplate, objectMapper, subscriptionRepositoryPort,
-                subscriptionCachePort, eventPublisherPort,
+                pubSubTemplate, objectMapper, paymentResultProcessor,
                 "pagamento-processado-sub", meterRegistry
         );
 
