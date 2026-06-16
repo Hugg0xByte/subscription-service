@@ -17,6 +17,16 @@ A aplicação está deployada no Google Cloud Platform e pode ser acessada publi
 
 ---
 
+## 📬 Postman Collection
+
+Para facilitar os testes, o projeto inclui uma collection do Postman com todas as requisições configuradas:
+
+📁 `docs/collectionsPostman/subscriptionService.postman_collection.json`
+
+Importe no Postman: **File → Import → Upload Files** → selecione o arquivo acima.
+
+---
+
 ## Tecnologias
 
 | Camada | Tecnologia |
