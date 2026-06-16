@@ -10,3 +10,13 @@ spring:
     show-sql: true
   liquibase:
     enabled: false
+
+pubsub:
+  topic:
+    pendente-pagamento: pendente-de-pagamento
+    pagamento-processado: pagamento-processado
+    pendente-pagamento-dlq: pendente-de-pagamento-dlq
+    pagamento-processado-dlq: pagamento-processado-dlq
+  subscription:
+    pendente-pagamento: pendente-de-pagamento-sub
+    pagamento-processado: pagamento-processado-sub

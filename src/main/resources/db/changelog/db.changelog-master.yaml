@@ -1,1 +1,11 @@
-databaseChangeLog: []
+databaseChangeLog:
+  - include:
+      file: db/changelog/changes/001-create-users-table.sql
+  - include:
+      file: db/changelog/changes/002-create-plans-and-subscriptions-tables.sql
+  - include:
+      file: db/changelog/changes/003-create-subscription-status-history-table.sql
+  - include:
+      file: db/changelog/changes/004-create-payment-tables.sql
+  - include:
+      file: db/changelog/changes/005-create-subscription-events-table.sql

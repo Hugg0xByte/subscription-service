@@ -1,0 +1,528 @@
+{
+  "info": {
+    "_postman_id": "0e9f3d30-5924-4089-998b-1934cae69abd",
+    "name": "subscriptionService",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "1056905",
+    "_collection_link": "https://go.postman.co/collection/1056905-0e9f3d30-5924-4089-998b-1934cae69abd?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "ambiente",
+      "item": [
+        {
+          "name": "create user",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Hugo Oliveira\",\n    \"email\": \"hugo@teste.com\"\n  }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url-subs-gcp}}/api/v1/users",
+              "host": [
+                "{{url-subs-gcp}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "create user",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": \"Hugo Oliveira\",\n    \"email\": \"hugo@teste.com\"\n  }",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url-subs-gcp}}/api/v1/users",
+                  "host": [
+                    "{{url-subs-gcp}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "users"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "x-cloud-trace-context",
+                  "value": "926ea795182088b1581ee701c8e34fc8;o=1"
+                },
+                {
+                  "key": "date",
+                  "value": "Tue, 16 Jun 2026 16:20:13 GMT"
+                },
+                {
+                  "key": "server",
+                  "value": "Google Frontend"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "152"
+                },
+                {
+                  "key": "Alt-Svc",
+                  "value": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": \"5568688a-dbb7-4f12-bcc7-169f78781b99\",\n    \"name\": \"Hugo Oliveira\",\n    \"email\": \"hugo@teste.com\",\n    \"active\": true,\n    \"createdAt\": \"2026-06-16T16:20:13.537987613Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url-subs-gcp}}/actuator/health",
+              "host": [
+                "{{url-subs-gcp}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get actives subscrioptions by user",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "SERVICE_URL/api/v1/subscriptions/active?userId=$USER_ID",
+              "host": [
+                "SERVICE_URL"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "subscriptions",
+                "active"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "$USER_ID"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "get actives subscrioptions by user",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url-subs-gcp}}/api/v1/subscriptions/active?userId=5568688a-dbb7-4f12-bcc7-169f78781b99",
+                  "host": [
+                    "{{url-subs-gcp}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "subscriptions",
+                    "active"
+                  ],
+                  "query": [
+                    {
+                      "key": "userId",
+                      "value": "5568688a-dbb7-4f12-bcc7-169f78781b99"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "date",
+                  "value": "Tue, 16 Jun 2026 16:30:39 GMT"
+                },
+                {
+                  "key": "server",
+                  "value": "Google Frontend"
+                },
+                {
+                  "key": "Alt-Svc",
+                  "value": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": \"b2009a9f-9936-4b13-b428-46d200b55a54\",\n    \"userId\": \"5568688a-dbb7-4f12-bcc7-169f78781b99\",\n    \"planName\": \"PREMIUM\",\n    \"priceAtPurchase\": 39.9,\n    \"currency\": \"BRL\",\n    \"status\": \"ATIVA\",\n    \"startDate\": \"2026-06-16\",\n    \"expirationDate\": \"2026-07-16\",\n    \"createdAt\": \"2026-06-16T16:27:02.864653Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "get users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://subscription-service-j4odpghlpq-rj.a.run.app/api/users",
+              "protocol": "https",
+              "host": [
+                "subscription-service-j4odpghlpq-rj",
+                "a",
+                "run",
+                "app"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create subscription",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"userId\": \"5568688a-dbb7-4f12-bcc7-169f78781b99\",\n    \"planId\": \"34ae843b-2c6c-40e1-89fb-23b60ce2f931\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url-subs-gcp}}/api/v1/subscriptions",
+              "host": [
+                "{{url-subs-gcp}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "subscriptions"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "create subscription",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"userId\": \"5568688a-dbb7-4f12-bcc7-169f78781b99\",\n    \"planId\": \"34ae843b-2c6c-40e1-89fb-23b60ce2f931\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url-subs-gcp}}/api/v1/subscriptions",
+                  "host": [
+                    "{{url-subs-gcp}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "subscriptions"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "x-cloud-trace-context",
+                  "value": "4e35eb27f874df33f4c336b90509d099;o=1"
+                },
+                {
+                  "key": "date",
+                  "value": "Tue, 16 Jun 2026 16:27:03 GMT"
+                },
+                {
+                  "key": "server",
+                  "value": "Google Frontend"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "272"
+                },
+                {
+                  "key": "Alt-Svc",
+                  "value": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": \"b2009a9f-9936-4b13-b428-46d200b55a54\",\n    \"userId\": \"5568688a-dbb7-4f12-bcc7-169f78781b99\",\n    \"planName\": \"PREMIUM\",\n    \"priceAtPurchase\": 39.9,\n    \"currency\": \"BRL\",\n    \"status\": \"ATIVA\",\n    \"startDate\": \"2026-06-16\",\n    \"expirationDate\": \"2026-07-16\",\n    \"createdAt\": \"2026-06-16T16:27:02.864652656Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "renovação",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{url-subs-gcp}}/api/v1/subscriptions/renewals/trigger?batchSize=100",
+              "host": [
+                "{{url-subs-gcp}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "subscriptions",
+                "renewals",
+                "trigger"
+              ],
+              "query": [
+                {
+                  "key": "batchSize",
+                  "value": "100"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{url-subs-gcp}}/api/v1/subscriptions/5568688a-dbb7-4f12-bcc7-169f78781b99/cancel",
+              "host": [
+                "{{url-subs-gcp}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "subscriptions",
+                "5568688a-dbb7-4f12-bcc7-169f78781b99",
+                "cancel"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "local",
+      "item": [
+        {
+          "name": "health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/actuator/health",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "actuator",
+                "health"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create-user",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Hugo Oliveira\", \"email\": \"hugo@globo.com\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/users",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "metrics",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "run-renewals",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/v1/subscriptions/renewals/trigger",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "subscriptions",
+                "renewals",
+                "trigger"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "consultar active subscription",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/v1/subscriptions/active?userId=f105ef89-4acc-40b5-a5a4-7994c87b6396",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "subscriptions",
+                "active"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "f105ef89-4acc-40b5-a5a4-7994c87b6396"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "list toptics",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "create-subscription",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
